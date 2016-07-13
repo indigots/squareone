@@ -36,17 +36,38 @@ app.use(session({
 
 var captcha = require('easy-captcha');
 app.use('/captcha.jpg', captcha.generate());
-app.post('/registernew', captcha.check, verifyCaptcha);
-function verifyCaptcha(req, res){
+app.post('/apiregister', captcha.check, apiVerifyCaptcha);
+function apiVerifyCaptcha(req, res){
+  res.setHeader('Content-Type', 'application/json');
   if(!req.session.captcha.valid){
-    //res.render('error', {message: 'Captcha was incorrect.'});
-    res.send('Captcha Error.');
+    res.send(JSON.stringify({result: 'Bad captcha'}));
   } else {
     delete req.session.captcha.text;
-    res.send('Success.');
-    //checkPasswords(req, res);
+    apiRegisterNew(req, res);
   }
-};
+}
+function apiRegisterNew(req, res){
+  var name = req.body.username;
+  var pass = req.body.password;
+  //user.addUser(name, pass, pool, result);
+  console.log('Unimplemented: add user');
+  result(null);
+  function result(err){
+    if(err){
+      if(err == 'exists'){
+        res.send(JSON.stringify({result: 'User already exists.'}));
+      } else {
+        console.log('Error api adding new user: ' + err);
+        res.send(JSON.stringify({result: 'There was an error creating your user'}));
+      }
+    } else {
+      req.session.user = {};
+      req.session.user.name = name;
+      req.session.user.authenticated = true;
+      res.send(JSON.stringify({result: 'success'}));
+    }
+  }
+}
 
 app.use(express.static(__dirname + '/public'));
 

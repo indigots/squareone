@@ -7,7 +7,6 @@ onmessage = function(event){
     signKey: hexkey.substring(64,96),
     passKey: hexkey.substring(96)
   }
-  console.log(toReturn.passKey.length);
   postMessage(toReturn);
 }
 
