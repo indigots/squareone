@@ -1,0 +1,4 @@
+// Define application options here
+module.exports = {
+  sessionSecret: 'session_secret'
+};

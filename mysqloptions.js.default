@@ -1,0 +1,8 @@
+// Define mysql connection options here
+module.exports = {
+  host: 'localhost',
+  port: 3306,
+  user: 'db_user',
+  password: 'password',
+  database: 'db_name'
+};
