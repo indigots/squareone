@@ -1,8 +1,10 @@
 // Define mysql connection options here
 module.exports = {
+  connectionLimit: 10,
   host: 'localhost',
   port: 3306,
   user: 'db_user',
   password: 'password',
-  database: 'db_name'
+  database: 'db_name',
+  sessiondatabase: 'session_db_name'
 };

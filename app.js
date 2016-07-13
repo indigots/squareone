@@ -6,9 +6,12 @@ var mysqloptions = require('./mysqloptions');
 var options = require('./options');
 
 var mysql = require('mysql');
+var pool = mysql.createPool(mysqloptions);
+
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
+mysqloptions.database = mysqloptions.sessiondatabase;
 var connection = mysql.createConnection(mysqloptions);
 var sessionStore = new MySQLStore({}, connection);
 
