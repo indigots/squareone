@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.7">
+  <title>PWStore - Register</title>
+  <link rel='stylesheet' href='/stylesheets/pure/pure-min.css' />
+  <link rel='stylesheet' href='/stylesheets/blinked.css' />
+  <link rel='stylesheet' href='/stylesheets/register.css' />
+  <script type="text/javascript" src="/javascripts/jquery/jquery-3.0.0.min.js"></script>
+  <script type="text/javascript" src="/javascripts/pwstore/register.js"></script>
+  <!-- For CryptoJS -->
+  <script type="text/javascript" src="/javascripts/cryptojs/components/core.js"></script>
+  <script type="text/javascript" src="/javascripts/cryptojs/components/x64-core.js"></script>
+  <script type="text/javascript" src="/javascripts/cryptojs/components/sha512.js"></script>
+  <!-- For Bitcoin -->
+  <!--<script type="text/javascript" src="/javascripts/bitcoin/crypto-js/crypto-min.js"></script>
+  <script type="text/javascript" src="/javascripts/bitcoin/jsbn/jsbn.js"></script>
+  <script type="text/javascript" src="/javascripts/bitcoin/bitcoin.js"></script>
+  <script type="text/javascript" src="/javascripts/bitcoin/util.js"></script>-->
+  <!-- For Bitmessage -->
+  <!--<script type="text/javascript" src="/javascripts/bitmessage/bitmessage.js"></script>
+  <script type="text/javascript" src="/javascripts/bitmessage/util.js"></script>-->
+</head>
+<body>
+  <h2>Register</h2>
+  <form id="register-form" class="pure-form pure-form-aligned"><fieldset>
+    <div class="pure-control-group">
+      <label for="register-username">Username</label>
+      <input id="register-username" placeholder="Username" type="text" /></br>
+    </div>
+    <div class="pure-control-group">
+      <label for="register-password">Password</label>
+      <input id="register-password" placeholder="Password" type="password" /></br>
+    </div>
+    <div class="pure-control-group">
+      <label for="register-password2">Confirm Password</label>
+      <input id="register-password2" placeholder="Confirm Password"  type="password" /></br>
+    </div>
+    <div class="pure-control-group">
+      <img src='/captcha.jpg' /><br />
+      <label for="register-captcha">Captcha</label>
+      <input id="register-captcha" type="text" placeholder='Captcha' />
+    </div>
+    <input id="register-button" class="pure-button pure-button-primary" type="submit" value="Register" />
+  </fieldset></form>
+  <span id="register-status"></span><br />
+  <a id="register-login-button" class="pure-button pure-button-primary bhide" href="/messaging">Login</a>
+</body>
+</html>

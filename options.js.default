@@ -1,4 +1,5 @@
 // Define application options here
 module.exports = {
-  sessionSecret: 'session_secret'
+  sessionSecret: 'session_secret',
+  cookieSecret: 'cookie_secret'
 };
