@@ -2,7 +2,6 @@ node_modules/
 mysqloptions.js
 options.js
 mysqldetails.txt
-public/javascripts/sjcl/
 public/javascripts/cryptojs/
 public/stylesheets/pure/
 public/javascripts/jquery/
