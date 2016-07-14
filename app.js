@@ -67,6 +67,28 @@ function apiRegisterNew(req, res){
   }
 }
 
+app.post('/apilogin', apiLogin);
+function apiLogin(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  user.authenticate(req.body.username, req.body.password, result);
+  function result(err, result){
+    if(err){
+      console.log('Got error back from authentication.');
+      res.send(JSON.stringify({result: 'error'}));
+      return;
+    }
+    if(!result){
+      res.send(JSON.stringify({result: 'failure'}));
+      return;
+    }
+    req.session.user = {};
+    req.session.user.name = req.body.username;
+    req.session.user.authenticated = true;
+    res.send(JSON.stringify({result: 'success'}));
+    console.log('Got success back from authentication.');
+  }
+}
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {

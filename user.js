@@ -7,14 +7,11 @@ function userManager(inPool) {
   pool = inPool;
 }
 userManager.prototype.addUser = function(inData, callback) {
-  console.log('Now pool is: ' + Object.prototype.toString.call(this.pool));
   var passHash, recoveryHash, connection;
   var name = inData.username;
   var storagekeys = JSON.stringify(inData.storagekeys);
   var recoverykeys = JSON.stringify(inData.recoverystoragekeys);
-  console.log('Unimplemented: add user in userManager');
-  console.log('Username: ' + inData.username);
-  console.log('Password to scrypt: ' + inData.password);
+  console.log('Username being created: ' + inData.username);
   scrypt.kdf(inData.password, {N: 1, r:1, p:1}, passwordHashDone);
   function passwordHashDone(err, hash){
     if(err){
@@ -23,8 +20,6 @@ userManager.prototype.addUser = function(inData, callback) {
       return;
     }
     passHash = hash.toString("base64");
-    console.log('Scrypted password: ' + passHash);
-    console.log('Recovery pass to scrypt: ' + inData.recoverypass);
     scrypt.kdf(inData.recoverypass, {N: 1, r:1, p:1}, recoveryHashDone);
   }
   function recoveryHashDone(err, hash){
@@ -46,11 +41,13 @@ userManager.prototype.addUser = function(inData, callback) {
     if(!err && result && result.length === 0){
       connection.query(_newUser, [name, passHash, recoveryHash, storagekeys, recoverykeys], inserted);
     } else {
+      connection.release();
       callback('exists');
       return;
     }
   }
   function inserted(err, results){
+    connection.release();
     if(err){
       callback(err);
     } else{
@@ -58,6 +55,38 @@ userManager.prototype.addUser = function(inData, callback) {
     }
   }
 }
+userManager.prototype.authenticate = function(name, pass, callback){
+  if(pass == ""){
+    callback('No password given.');
+  } else {
+    pool.getConnection(gotConnection);
+    function gotConnection(err, connection){
+      if(err){console.log('Error getting connection. ' + err)};
+      connection.query(_selectUser, [name], gotUser);
+      function gotUser(err, results){
+      connection.release();
+        if(err){console.log('Error querying user. ' + err)};
+        if(results && results.length == 1){
+          //lastSession = results[0].sessionid;
+          verify(pass, results[0].pass);
+        } else {
+          callback(null, false);
+        }
+      }
+    }
+    function verify(pass, storedPass){
+      scrypt.verifyKdf(new Buffer(storedPass, 'base64'), new Buffer(pass), scryptReturn);
+      function scryptReturn(err, result){
+        if(!err && result){
+          //updateLastLogin(name, sessionId, pool);
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      };
+    };
+  }; //blank pass else
+};
 
 
 module.exports = userManager;
