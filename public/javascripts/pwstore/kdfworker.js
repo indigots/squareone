@@ -2,12 +2,7 @@
 importScripts('/javascripts/asmcrypto/asmcrypto.js');
 onmessage = function(event){
   var hexkey = doKDF(event.data.username, event.data.password);
-  toReturn = {
-    encKey: hexkey.substring(0,64),
-    signKey: hexkey.substring(64,96),
-    passKey: hexkey.substring(96)
-  }
-  postMessage(toReturn);
+  postMessage(hexkey);
 }
 
 function doKDF(username, password){

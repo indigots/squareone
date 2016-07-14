@@ -5,7 +5,6 @@ $(document).ready(function(){
     event.preventDefault();
   });
   kdfWorker = new Worker('/javascripts/pwstore/kdfworker.js');
-  kdfWorker.onmessage = gotMessage;
 });
 
 psGlobals = {};
@@ -28,30 +27,64 @@ function doRegister(){
   //alert(keyHex);
   //doKDF(username, pass);
   updateStatus('Performing PBKDF2...');
+  kdfWorker.onmessage = gotPassKdf;
   kdfWorker.postMessage({username: username, password: pass});
 }
 
-function gotMessage(event){
+function gotPassKdf(event){
   //alert(JSON.stringify(event.data));
-  psGlobals.encKey = event.data.encKey;
-  psGlobals.signKey = event.data.signKey;
-  psGlobals.passKey = event.data.passKey;
-  if(psGlobals.encKey.length !== 64 || psGlobals.signKey.length !== 32 || psGlobals.passKey.length !== 32){
+  console.log(event.data);
+  psGlobals.encKey = event.data.substr(0,32);
+  psGlobals.signKey = event.data.substr(32,32);
+  psGlobals.passKey = event.data.substr(64,64);
+  if(psGlobals.encKey.length !== 32 || psGlobals.signKey.length !== 32 || psGlobals.passKey.length !== 64){
     updateStatus('Error: Keys were not created properly.<br />\n');
     $('#register-button').toggleClass('pure-button-disabled').attr("disabled", false);
     return;
   }
   updateStatus('done<br />\n');
-  apiRegister(psGlobals.username, event.data.passKey, psGlobals.captcha);
+  updateStatus('Creating recovery key...');
+  var possible = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
+  psGlobals.recoveryPass = "";
+  for(var i=0; i<24; i++){
+    psGlobals.recoveryPass += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  updateStatus(psGlobals.recoveryPass + '<br>\n');
+  updateStatus('Performing PBKDF2...');
+  kdfWorker.onmessage = gotRecoveryKdf;
+  kdfWorker.postMessage({username: psGlobals.username, password: psGlobals.recoveryPass});
 }
 
-function apiRegister(username, pass, captcha){
+function gotRecoveryKdf(event){
+  psGlobals.recoveryEncKey = event.data.substr(0,32);
+  psGlobals.recoverySignKey = event.data.substr(32,32);
+  psGlobals.recoveryPassKey = event.data.substr(64,64);
+  encryptSessionKeys();
+  apiRegister(psGlobals.username, psGlobals.passKey, psGlobals.recoveryPassKey, psGlobals.captcha);
+}
+
+function encryptSessionKeys(){
+  asmCrypto.random.skipSystemRNGWarning = true;
+  var storeEncKey = new Uint8Array(32);
+  asmCrypto.getRandomValues(storeEncKey);
+  var storeSignKey = new Uint8Array(32);
+  asmCrypto.getRandomValues(storeSignKey);
+  psGlobals.encryptedStoreEncKey = asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
+  psGlobals.encryptedStoreSignKey = asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
+  psGlobals.recoveryEncryptedStoreEncKey = 
+    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)));
+  psGlobals.recoveryEncryptedStoreSignKey = 
+    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)));
+}
+
+function apiRegister(username, pass, recoveryPass, captcha){
   updateStatus('Registering user...');
   $.ajax({
     type: "POST",
     url: "/apiregister",
     data: {username: username,
       password: pass,
+      recoverypass: recoveryPass,
       captcha: captcha}
   })
   .done(function(data){
