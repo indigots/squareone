@@ -19,6 +19,8 @@ app.use(cookieParser(options.cookieSecret));
 
 var mysql = require('mysql');
 var pool = mysql.createPool(mysqloptions);
+var userManager = require('./user');
+var user = new userManager(pool);
 
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
@@ -47,11 +49,7 @@ function apiVerifyCaptcha(req, res){
   }
 }
 function apiRegisterNew(req, res){
-  var name = req.body.username;
-  var pass = req.body.password;
-  //user.addUser(name, pass, pool, result);
-  console.log('Unimplemented: add user');
-  result(null);
+  user.addUser(req.body, result);
   function result(err){
     if(err){
       if(err == 'exists'){
@@ -62,7 +60,7 @@ function apiRegisterNew(req, res){
       }
     } else {
       req.session.user = {};
-      req.session.user.name = name;
+      req.session.user.name = req.body.username;
       req.session.user.authenticated = true;
       res.send(JSON.stringify({result: 'success'}));
     }
