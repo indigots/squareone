@@ -43,7 +43,7 @@ function gotPassKdf(event){
     return;
   }
   updateStatus('done<br />\n');
-  updateStatus('Creating recovery key...');
+  updateStatus('Creating recovery key...<br>\n');
   var possible = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789";
   psGlobals.recoveryPass = "";
   for(var i=0; i<24; i++){
@@ -60,7 +60,14 @@ function gotRecoveryKdf(event){
   psGlobals.recoverySignKey = event.data.substr(32,32);
   psGlobals.recoveryPassKey = event.data.substr(64,64);
   encryptSessionKeys();
-  apiRegister(psGlobals.username, psGlobals.passKey, psGlobals.recoveryPassKey, psGlobals.captcha);
+  apiRegister({
+    username: psGlobals.username, 
+    password: psGlobals.passKey, 
+    recoverypass: psGlobals.recoveryPassKey, 
+    captcha: psGlobals.captcha,
+    storagekeys: psGlobals.storageKeys,
+    recoverystoragekeys: psGlobals.recoveryStorageKeys 
+  });
 }
 
 function encryptSessionKeys(){
@@ -69,23 +76,22 @@ function encryptSessionKeys(){
   asmCrypto.getRandomValues(storeEncKey);
   var storeSignKey = new Uint8Array(32);
   asmCrypto.getRandomValues(storeSignKey);
-  psGlobals.encryptedStoreEncKey = asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
-  psGlobals.encryptedStoreSignKey = asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
-  psGlobals.recoveryEncryptedStoreEncKey = 
-    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)));
-  psGlobals.recoveryEncryptedStoreSignKey = 
-    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)));
+  psGlobals.storageKeys = {
+    encKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.encKey))),
+    signKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.encKey)))
+  }
+  psGlobals.recoveryStorageKeys = {
+    encKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey))),
+    signKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)))
+  }
 }
 
-function apiRegister(username, pass, recoveryPass, captcha){
+function apiRegister(inData){
   updateStatus('Registering user...');
   $.ajax({
     type: "POST",
     url: "/apiregister",
-    data: {username: username,
-      password: pass,
-      recoverypass: recoveryPass,
-      captcha: captcha}
+    data: inData
   })
   .done(function(data){
     if(data.result == 'success'){
