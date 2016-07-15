@@ -73,18 +73,21 @@ userManager.prototype.authenticate = function(name, pass, callback){
         if(err){console.log('Error querying user. ' + err)};
         if(results && results.length == 1){
           //lastSession = results[0].sessionid;
-          verify(pass, results[0].pass);
+          verify(pass, results[0].pass, results[0]);
         } else {
           callback(null, false);
         }
       }
     }
-    function verify(pass, storedPass){
+    function verify(pass, storedPass, rowData){
       scrypt.verifyKdf(new Buffer(storedPass, 'base64'), new Buffer(pass), scryptReturn);
       function scryptReturn(err, result){
         if(!err && result){
           //updateLastLogin(name, sessionId, pool);
-          callback(null, true);
+          callback(null, true,
+            {storagekeys: rowData.storagekeys,
+            recoverykeys: rowData.recoverykeys}
+          );
         } else {
           callback(null, false);
         }
