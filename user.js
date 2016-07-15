@@ -11,16 +11,20 @@ userManager.prototype.addUser = function(inData, callback) {
   var name = inData.username;
   var storagekeys = JSON.stringify(inData.storagekeys);
   var recoverykeys = JSON.stringify(inData.recoverystoragekeys);
-  console.log('Username being created: ' + inData.username);
-  scrypt.kdf(inData.password, {N: 1, r:1, p:1}, passwordHashDone);
+  var start = new Date();
+  scrypt.kdf(inData.password, {'N':18, 'r':8, 'p':1}, passwordHashDone);
   function passwordHashDone(err, hash){
     if(err){
       console.log('Error in scrypt: ' + err);
       callback('error');
       return;
     }
+    var end = new Date();
+    var diff = end - start;
+    console.log('scrypt took: ' + diff + 'ms');
     passHash = hash.toString("base64");
-    scrypt.kdf(inData.recoverypass, {N: 1, r:1, p:1}, recoveryHashDone);
+    start = new Date();
+    scrypt.kdf(inData.recoverypass, {'N':18, 'r':8, 'p':1}, recoveryHashDone);
   }
   function recoveryHashDone(err, hash){
     if(err){
@@ -28,13 +32,14 @@ userManager.prototype.addUser = function(inData, callback) {
       callback('error');
       return;
     }
+    var diff = (new Date()) - start;
+    console.log('scrypt took: ' + diff + 'ms');
     recoveryHash = hash.toString("base64");
     pool.getConnection(gotConnection);
   }
   function gotConnection(err, inConnection){
     connection = inConnection;
     if(err){console.log('Error getting connection. ' + err)};
-    console.log('Name now is: ' + name);
     connection.query(_selectUser, [name], gotUser);
   }
   function gotUser(err, result){

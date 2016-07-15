@@ -10,7 +10,6 @@ function doKDF(username, password){
   var salt =  username + saltA;
   var outkey = asmCrypto.PBKDF2_HMAC_SHA512.hex(password, salt, 50005, 64);
   return(outkey);
-  
 }
 
 function kdfVector(p, s, c, len){

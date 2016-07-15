@@ -21,7 +21,6 @@ function doLogin(){
 }
 
 function gotPassKdf(event){
-  console.log(event.data);
   psGlobals.encKey = event.data.substr(0,32);
   psGlobals.signKey = event.data.substr(32,32);
   psGlobals.passKey = event.data.substr(64,64);
