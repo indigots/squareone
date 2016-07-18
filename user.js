@@ -1,6 +1,6 @@
 var scrypt = require('scrypt');
 var pool;
-var _newUser = 'INSERT INTO user (name, pass, recoverypass, storagekeys, recoverykeys, joined, lastlogin) VALUES (?,?,?,?,?,NOW(),NOW())';
+var _newUser = 'INSERT INTO user (name, pass, recoverypass, userdata, joined, lastlogin) VALUES (?,?,?,?,NOW(),NOW())';
 var _selectUser = 'SELECT * FROM user WHERE name = ?';
 
 function userManager(inPool) {
@@ -9,8 +9,7 @@ function userManager(inPool) {
 userManager.prototype.addUser = function(inData, callback) {
   var passHash, recoveryHash, connection;
   var name = inData.username;
-  var storagekeys = JSON.stringify(inData.storagekeys);
-  var recoverykeys = JSON.stringify(inData.recoverystoragekeys);
+  var userdata = JSON.stringify(inData.userdata);
   var start = new Date();
   scrypt.kdf(inData.password, {'N':18, 'r':8, 'p':1}, passwordHashDone);
   function passwordHashDone(err, hash){
@@ -44,7 +43,7 @@ userManager.prototype.addUser = function(inData, callback) {
   }
   function gotUser(err, result){
     if(!err && result && result.length === 0){
-      connection.query(_newUser, [name, passHash, recoveryHash, storagekeys, recoverykeys], inserted);
+      connection.query(_newUser, [name, passHash, recoveryHash, userdata], inserted);
     } else {
       connection.release();
       callback('exists');
@@ -84,10 +83,7 @@ userManager.prototype.authenticate = function(name, pass, callback){
       function scryptReturn(err, result){
         if(!err && result){
           //updateLastLogin(name, sessionId, pool);
-          callback(null, true,
-            {storagekeys: rowData.storagekeys,
-            recoverykeys: rowData.recoverykeys}
-          );
+          callback(null, true, JSON.parse(rowData.userdata));
         } else {
           callback(null, false);
         }

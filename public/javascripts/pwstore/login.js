@@ -33,17 +33,11 @@ function gotPassKdf(event){
   apiLogin(psGlobals.username, psGlobals.passKey);
 }
 
-function decryptSessionKeys(keys){
-  //var storeEncKey = new Uint8Array(32);
-  //var storeSignKey = new Uint8Array(32);
-  var encryptedStorageEncKey = asmCrypto.hex_to_bytes(JSON.parse(keys.storagekeys).encKey);
-  psGlobals.storageEncKey = 
-    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.decrypt( encryptedStorageEncKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
-  console.log(psGlobals.storageEncKey);
-  var encryptedStorageSignKey = asmCrypto.hex_to_bytes(JSON.parse(keys.storagekeys).signKey);
-  psGlobals.storageSignKey = 
-    asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.decrypt( encryptedStorageSignKey, asmCrypto.hex_to_bytes(psGlobals.encKey)));
-  console.log(psGlobals.storageSignKey);
+function decryptSessionKeys(userdata){
+  var encBytes = ezdec(userdata.encryptedEncKey, psGlobals.encKey, psGlobals.signKey);
+  psGlobals.storageEncKey = asmCrypto.bytes_to_hex(encBytes);
+  var signBytes = ezdec(userdata.encryptedSignKey, psGlobals.encKey, psGlobals.signKey);
+  psGlobals.storageSignKey = asmCrypto.bytes_to_hex(signBytes);
 }
 
 function apiLogin(username, pass){
@@ -57,7 +51,7 @@ function apiLogin(username, pass){
   .done(function(data){
     if(data.result == 'success'){
       updateStatus('done<br />\n');
-      decryptSessionKeys(data.keys);
+      decryptSessionKeys(data.userdata);
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);

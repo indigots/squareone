@@ -71,7 +71,7 @@ app.post('/apilogin', apiLogin);
 function apiLogin(req, res){
   res.setHeader('Content-Type', 'application/json');
   user.authenticate(req.body.username, req.body.password, result);
-  function result(err, result, keys){
+  function result(err, result, userdata){
     if(err){
       console.log('Got error back from authentication.');
       res.send(JSON.stringify({result: 'error'}));
@@ -84,7 +84,7 @@ function apiLogin(req, res){
     req.session.user = {};
     req.session.user.name = req.body.username;
     req.session.user.authenticated = true;
-    res.send(JSON.stringify({result: 'success', keys: keys}));
+    res.send(JSON.stringify({result: 'success', userdata: userdata}));
     console.log('Got success back from authentication.');
   }
 }

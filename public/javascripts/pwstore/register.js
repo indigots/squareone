@@ -57,31 +57,31 @@ function gotRecoveryKdf(event){
   psGlobals.recoveryEncKey = event.data.substr(0,32);
   psGlobals.recoverySignKey = event.data.substr(32,32);
   psGlobals.recoveryPassKey = event.data.substr(64,64);
-  encryptSessionKeys();
+  var keydata = encryptSessionKeys();
   apiRegister({
     username: psGlobals.username, 
     password: psGlobals.passKey, 
     recoverypass: psGlobals.recoveryPassKey, 
     captcha: psGlobals.captcha,
-    storagekeys: psGlobals.storageKeys,
-    recoverystoragekeys: psGlobals.recoveryStorageKeys 
+    userdata: keydata
   });
 }
 
 function encryptSessionKeys(){
-  asmCrypto.random.skipSystemRNGWarning = true;
   var storeEncKey = new Uint8Array(32);
   asmCrypto.getRandomValues(storeEncKey);
+  console.log('Storage Enc Key: ' + asmCrypto.bytes_to_hex(storeEncKey));
   var storeSignKey = new Uint8Array(32);
   asmCrypto.getRandomValues(storeSignKey);
-  psGlobals.storageKeys = {
-    encKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.encKey))),
-    signKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.encKey)))
-  }
-  psGlobals.recoveryStorageKeys = {
-    encKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeEncKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey))),
-    signKey: asmCrypto.bytes_to_hex( asmCrypto.AES_CBC.encrypt( storeSignKey, asmCrypto.hex_to_bytes(psGlobals.recoveryEncKey)))
-  }
+  console.log('Storage Sign Key: ' + asmCrypto.bytes_to_hex(storeSignKey));
+  var toReturn = {
+    encryptedEncKey: ezenc(storeEncKey, psGlobals.encKey, psGlobals.signKey),
+    encryptedSignKey: ezenc(storeSignKey, psGlobals.encKey, psGlobals.signKey),
+    recoveryEncryptedEncKey: ezenc(storeEncKey, psGlobals.recoveryEncKey, psGlobals.recoverySignKey),
+    recoveryEncryptedSignKey: ezenc(storeSignKey, psGlobals.recoveryEncKey, psGlobals.recoverySignKey)
+  };
+  return toReturn;
+
 }
 
 function apiRegister(inData){
