@@ -32,10 +32,10 @@ function doRegister(){
 }
 
 function gotPassKdf(event){
-  psGlobals.encKey = event.data.substr(0,32);
-  psGlobals.signKey = event.data.substr(32,32);
-  psGlobals.passKey = event.data.substr(64,64);
-  if(psGlobals.encKey.length !== 32 || psGlobals.signKey.length !== 32 || psGlobals.passKey.length !== 64){
+  psGlobals.encKey = event.data.substr(0,64);
+  psGlobals.signKey = event.data.substr(64,64);
+  psGlobals.passKey = event.data.substr(128,128);
+  if(psGlobals.encKey.length !== 64 || psGlobals.signKey.length !== 64 || psGlobals.passKey.length !== 128){
     updateStatus('Error: Keys were not created properly.<br />\n');
     $('#register-button').toggleClass('pure-button-disabled').attr("disabled", false);
     return;
@@ -54,9 +54,9 @@ function gotPassKdf(event){
 }
 
 function gotRecoveryKdf(event){
-  psGlobals.recoveryEncKey = event.data.substr(0,32);
-  psGlobals.recoverySignKey = event.data.substr(32,32);
-  psGlobals.recoveryPassKey = event.data.substr(64,64);
+  psGlobals.recoveryEncKey = event.data.substr(0,64);
+  psGlobals.recoverySignKey = event.data.substr(64,64);
+  psGlobals.recoveryPassKey = event.data.substr(128,128);
   var keydata = encryptSessionKeys();
   apiRegister({
     username: psGlobals.username, 

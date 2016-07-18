@@ -8,7 +8,7 @@ onmessage = function(event){
 function doKDF(username, password){
   var saltA = 'kbxYOlSNkLOqEZrji1Mch98WYsKop6Kia5Q82SfI0rFRSpMVd2LxnR5xyuTTk3Ao';
   var salt =  username + saltA;
-  var outkey = asmCrypto.PBKDF2_HMAC_SHA512.hex(password, salt, 50005, 64);
+  var outkey = asmCrypto.PBKDF2_HMAC_SHA512.hex(password, salt, 50005, 128);
   return(outkey);
 }
 
