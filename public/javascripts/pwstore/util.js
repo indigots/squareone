@@ -22,3 +22,7 @@ function ezdec(obj, hexEncKey, hexSignKey){
     return null;
   }
 } 
+
+function createUID(){
+  return (new Date()).getTime() + '-' + Math.floor((Math.random()*1000000000000)+1);
+}

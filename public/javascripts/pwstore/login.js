@@ -7,7 +7,9 @@ $(document).ready(function(){
   kdfWorker = new Worker('/javascripts/pwstore/kdfworker.js');
 });
 
-psGlobals = {};
+psGlobals = {
+  passwords: []
+};
 
 function doLogin(){
   resetStatus();
@@ -52,6 +54,8 @@ function apiLogin(username, pass){
     if(data.result == 'success'){
       updateStatus('done<br />\n');
       decryptSessionKeys(data.userdata);
+      $('#password-div').show();
+      renderPasswords();
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);

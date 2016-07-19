@@ -20,6 +20,7 @@
     "morgan": "~1.7.0",
     "body-parser": "~1.15.2",
     "asmcrypto.js": "0.0.11",
-    "scrypt": "~6.0.3"
+    "scrypt": "~6.0.3",
+    "underscore": "~1.8.3"
   }
 }
