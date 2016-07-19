@@ -54,6 +54,7 @@ function apiLogin(username, pass){
     if(data.result == 'success'){
       updateStatus('done<br />\n');
       decryptSessionKeys(data.userdata);
+      $('#login-div').hide();
       $('#password-div').show();
       renderPasswords();
     } else {
