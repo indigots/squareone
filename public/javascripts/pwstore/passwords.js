@@ -11,8 +11,8 @@ function addPassword(){
 function renderPassword(inPassword, inIndex){
   var addTemplate = 
     '<div id="PASSWORDUID-passitem" class="password-item" tabindex="' + inIndex + '">' +
-    '<h4 class="password-label editable" field="label">PASSWORDLABEL</h4>' +
-    '<h5 class="password-username editable" field="username">PASSWORDUSERNAME</h5>' +
+    '<span class="password-label editable" field="label">PASSWORDLABEL</span><br>' +
+    '<span class="password-username editable" field="username">PASSWORDUSERNAME</span><a href="#" class="copy-button">copy</a><br>' +
     '<h5 class="password-password editable" field="password">PASSWORDPASSWORD</h5>' +
     '<h5><a class="password-url editable" href="PASSWORDURL" target="_blank" field="url">PASSWORDURL</a></h5>' +
     '<h5 class="password-notes editable" field="notes">PASSWORDNOTES</h5>' +
@@ -46,6 +46,7 @@ function renderPasswords(){
     $('#' + psGlobals.passwords[i].uid + '-passitem').append(editButton);
   }
   $('.editable').editable().on('editsubmit', doneEditing);
+  $('.copy-button').click(selectAndCopy);
 }
 
 function doneEditing(event, val){
@@ -64,4 +65,33 @@ function clickedPasswordEdit(event){
 
 function getPasswordByUID(inUid){
   return _.findWhere(psGlobals.passwords, {uid: inUid});
+}
+
+function selectAndCopy(event){
+  var toSelect = $(this).prev().get(0);
+  selectText(toSelect);
+  try {
+    var success = document.execCommand('copy');
+    if(success) console.log('Copied!');
+    else console.log('Unable to copy.');
+  } catch(err) {
+    console.log('Browser does not support copying text.');
+  }
+}
+
+function selectText(toSelect){
+  var doc = document , toSelect
+    , range, selection
+  ;    
+  if (doc.body.createTextRange) {
+    range = document.body.createTextRange();
+    range.moveToElementText(toSelect);
+    range.select();
+  } else if (window.getSelection) {
+    selection = window.getSelection();        
+    range = document.createRange();
+    range.selectNodeContents(toSelect);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
 }
