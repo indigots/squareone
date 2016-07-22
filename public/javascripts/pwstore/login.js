@@ -5,6 +5,7 @@ $(document).ready(function(){
     event.preventDefault();
   });
   kdfWorker = new Worker('/javascripts/pwstore/kdfworker.js');
+  $('#logout-button').click(logoutClicked);
 });
 
 psGlobals = {
@@ -70,9 +71,45 @@ function apiLogin(username, pass){
 
 function resetStatus(){
   $('#login-status').html('');
+  $('#login-button').toggleClass('pure-button-disabled').attr("disabled", false);
 }
 
 function updateStatus(text){
   var orig = $('#login-status').html();
   $('#login-status').html(orig + text);
+}
+
+function logoutClicked(){
+  //Should prompt here
+  logout();
+}
+
+function logout(){
+  $.ajax({
+    type: "POST",
+    url: "/apilogout",
+    data: {a: 1}
+  })
+  .done(function(data){
+    console.log('Logged out of server session.');
+    finalLogoutSteps();
+  })
+  .fail(function() {
+    console.log('Error contacting remote server logout.');
+    finalLogoutSteps();
+  });
+}
+
+function finalLogoutSteps(){
+  zeroKeys();
+  resetStatus();
+  location.reload(false);
+}
+
+function zeroKeys(){
+  psGlobals.encKey = '0000000000000000000000000000000000000000000000000000000000000000';
+  psGlobals.signKey = '0000000000000000000000000000000000000000000000000000000000000000';
+  psGlobals.storageEncKey = '0000000000000000000000000000000000000000000000000000000000000000';
+  psGlobals.storageSignKey = '0000000000000000000000000000000000000000000000000000000000000000';
+  psGlobals.passKey = '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
 }

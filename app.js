@@ -89,6 +89,14 @@ function apiLogin(req, res){
   }
 }
 
+app.post('/apilogout', apiLogout);
+function apiLogout(req, res){
+  delete req.session.user;
+  delete req.session.authenticated;
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify({result: 'success'}));
+}
+
 app.post('/apistore', apiStore);
 function apiStore(req, res){
   res.setHeader('Content-Type', 'application/json');
