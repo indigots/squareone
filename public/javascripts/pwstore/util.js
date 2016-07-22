@@ -5,7 +5,7 @@ function ezenc(clear, hexEncKey, hexSignKey){
   var outBytes = asmCrypto.AES_CBC.encrypt(clear, asmCrypto.hex_to_bytes(hexEncKey), true, IV);
   var base64Sig = asmCrypto.HMAC_SHA512.base64(clear, asmCrypto.hex_to_bytes(hexSignKey));
   var toReturn = {
-    cipher: asmCrypto.bytes_to_hex(outBytes),
+    cipher: asmCrypto.bytes_to_base64(outBytes),
     iv: asmCrypto.bytes_to_hex(IV),
     sig: base64Sig
   };
@@ -13,7 +13,7 @@ function ezenc(clear, hexEncKey, hexSignKey){
 }
 
 function ezdec(obj, hexEncKey, hexSignKey){
-  var clear = asmCrypto.AES_CBC.decrypt(asmCrypto.hex_to_bytes(obj.cipher), asmCrypto.hex_to_bytes(hexEncKey), true, asmCrypto.hex_to_bytes(obj.iv));
+  var clear = asmCrypto.AES_CBC.decrypt(asmCrypto.base64_to_bytes(obj.cipher), asmCrypto.hex_to_bytes(hexEncKey), true, asmCrypto.hex_to_bytes(obj.iv));
   var base64Sig = asmCrypto.HMAC_SHA512.base64(clear, asmCrypto.hex_to_bytes(hexSignKey));
   if(base64Sig === obj.sig){
     return clear;
