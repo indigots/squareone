@@ -2,6 +2,7 @@ var scrypt = require('scrypt');
 var pool;
 var _newUser = 'INSERT INTO user (name, pass, recoverypass, userdata, joined, lastlogin) VALUES (?,?,?,?,NOW(),NOW())';
 var _selectUser = 'SELECT * FROM user WHERE name = ?';
+var _upsertObject= 'INSERT INTO objectstore (username, created, uid, type, data) VALUES (?, NOW(), ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?';
 
 function userManager(inPool) {
   pool = inPool;
@@ -91,6 +92,25 @@ userManager.prototype.authenticate = function(name, pass, callback){
     };
   }; //blank pass else
 };
-
+userManager.prototype.upsertObject = function(name, uid, type, data, callback){
+  pool.getConnection(gotConnection);
+  function gotConnection(err, connection){
+    if(err){
+      console.log('Error getting connection. ' + err);
+      callback('error');
+      return;
+    }
+    connection.query(_upsertObject, [name, uid, type, data, data], doneUpsert);
+    function doneUpsert(err, results){
+      connection.release();
+      if(err){
+        console.log('Error upserting object: ' + err);
+        callback('error');
+        return;
+      }
+      callback(null);
+    }
+  }
+}
 
 module.exports = userManager;

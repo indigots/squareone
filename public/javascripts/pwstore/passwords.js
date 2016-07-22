@@ -55,7 +55,34 @@ function doneEditing(event, val){
   console.log('Label of edited password ' + edited.label);
   var field = event.target.getAttribute('field');
   console.log('Field type edited: ' + field);
+  var previousVal = edited[field];
   edited[field] = val;
+  if(previousVal !== val){
+    console.log('Value changed, storing...');
+    storePassword(edited);
+  } else {
+    console.log('Value remained same skipping save.');
+  }
+}
+
+function storePassword(edited){
+  encryptedPassword = ezenc(JSON.stringify(edited), psGlobals.storageEncKey, psGlobals.storageSignKey);
+  $.ajax({
+    type: "POST",
+    url: "/apistore",
+    data: {type: 'pass',
+      data: JSON.stringify(encryptedPassword),
+      uid: edited.uid}
+  })
+  .done(function(data){
+    if(data.result == 'success'){
+      console.log('Password stored.');
+    } else {
+      console.log('Failed to store password: ' + data.result);
+    }
+  }).fail(function() {
+    console.log('Failed to store password, could not contact server.');
+  });
 }
 
 function clickedPasswordEdit(event){

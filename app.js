@@ -89,6 +89,29 @@ function apiLogin(req, res){
   }
 }
 
+app.post('/apistore', apiStore);
+function apiStore(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  var name = req.session.user.name;
+  if(req.session.user.authenticated = true 
+    && name 
+    && req.body.uid 
+    && req.body.type 
+    && req.body.data
+  ){
+    user.upsertObject(name, req.body.uid, req.body.type, req.body.data, doneUpsert);
+  } else {
+    res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
+  }
+  function doneUpsert(err){
+    if(err){
+      res.send(JSON.stringify({result: 'Error storing object to the db.'}));
+    } else {
+      res.send({result: 'success'});
+    }
+  }
+}
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
