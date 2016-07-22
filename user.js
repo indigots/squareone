@@ -3,6 +3,7 @@ var pool;
 var _newUser = 'INSERT INTO user (name, pass, recoverypass, userdata, joined, lastlogin) VALUES (?,?,?,?,NOW(),NOW())';
 var _selectUser = 'SELECT * FROM user WHERE name = ?';
 var _upsertObject= 'INSERT INTO objectstore (username, created, uid, type, data) VALUES (?, NOW(), ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?';
+var _massFetch = 'SELECT created, type, uid, data FROM objectstore WHERE username = ? AND type = ? ORDER BY created DESC';
 
 function userManager(inPool) {
   pool = inPool;
@@ -109,6 +110,26 @@ userManager.prototype.upsertObject = function(name, uid, type, data, callback){
         return;
       }
       callback(null);
+    }
+  }
+}
+userManager.prototype.massFetch = function(name, type, callback){
+  pool.getConnection(gotConnection);
+  function gotConnection(err, connection){
+    if(err){
+      console.log('Error getting connection. ' + err);
+      callback('error');
+      return;
+    }
+    connection.query(_massFetch, [name, type], doneFetch);
+    function doneFetch(err, results){
+      connection.release();
+      if(err){
+        console.log('Error doing mass fetch: ' + err);
+        callback('error');
+        return;
+      }
+      callback(null, results);
     }
   }
 }

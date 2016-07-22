@@ -57,6 +57,7 @@ function apiLogin(username, pass){
       $('#login-div').hide();
       $('#password-div').show();
       renderPasswords();
+      fetchAllPasswords();
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);

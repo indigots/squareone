@@ -93,8 +93,11 @@ app.post('/apistore', apiStore);
 function apiStore(req, res){
   res.setHeader('Content-Type', 'application/json');
   var name = req.session.user.name;
-  if(req.session.user.authenticated = true 
-    && name 
+  if(!req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
+  if(name 
     && req.body.uid 
     && req.body.type 
     && req.body.data
@@ -108,6 +111,29 @@ function apiStore(req, res){
       res.send(JSON.stringify({result: 'Error storing object to the db.'}));
     } else {
       res.send({result: 'success'});
+    }
+  }
+}
+
+app.post('/apimassfetch', apiMassFetch);
+function apiMassFetch(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  var name = req.session.user.name;
+  if(!req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
+  var name = req.session.user.name;
+  if(name && req.body.type){
+    user.massFetch(name, req.body.type, doneFetch);
+  } else {
+    res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
+  }
+  function doneFetch(err, data){
+    if(err){
+      res.send(JSON.stringify({result: 'Error fetching objects from the db.'}));
+    } else {
+      res.send(JSON.stringify({result: 'success', data: data}));
     }
   }
 }

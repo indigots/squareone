@@ -36,7 +36,7 @@ function renderPasswords(){
     newHtml += renderPassword(psGlobals.passwords[i], i);
   }
   $('#password-list').html(newHtml);
-  for(var i=0; i<psGlobals.passwords.length; i++){
+  /*for(var i=0; i<psGlobals.passwords.length; i++){
     var editButton = $('<button/>', {
       text: 'Edit',
       id: 'editpassword-' + psGlobals.passwords[i].uid,
@@ -44,7 +44,7 @@ function renderPasswords(){
       click: clickedPasswordEdit
     });
     $('#' + psGlobals.passwords[i].uid + '-passitem').append(editButton);
-  }
+  }*/
   $('.editable').editable().on('editsubmit', doneEditing);
   $('.copy-button').click(selectAndCopy);
 }
@@ -75,7 +75,7 @@ function storePassword(edited){
       uid: edited.uid}
   })
   .done(function(data){
-    if(data.result == 'success'){
+    if(data.result === 'success'){
       console.log('Password stored.');
     } else {
       console.log('Failed to store password: ' + data.result);
@@ -83,6 +83,55 @@ function storePassword(edited){
   }).fail(function() {
     console.log('Failed to store password, could not contact server.');
   });
+}
+
+function fetchAllPasswords(){
+  $.ajax({
+    type: "POST",
+    url: "/apimassfetch",
+    data: {type: 'pass'}
+  })
+  .done(function(data){
+    if(data.result !== 'success'){
+      console.log('Failed to fetch passwords: ' + data.result);
+      return; 
+    }
+    if(Array.isArray(data.data)){
+      var rows = data.data;
+      console.log('Got passwords.');
+      var clearPasswords = new Array();
+      for(var i=0; i<rows.length; i++){
+        console.log(rows[i]);
+        console.log(JSON.stringify(rows[i]));
+        var clearBytes = ezdec(JSON.parse(rows[i].data), psGlobals.storageEncKey, psGlobals.storageSignKey);
+        var clear = asmCrypto.bytes_to_string(clearBytes);
+        console.log(clear);
+        clearPasswords.push(JSON.parse(clear));
+      }
+      updateGlobalPasswords(clearPasswords);
+    } else {
+      console.log('Error in returned passwords.');
+    }
+  }).fail(function() {
+    console.log('Failed to fetch passwords, could not contact server.');
+  });
+}
+
+function updateGlobalPasswords(pws){
+  for(var i=0; i<pws.length; i++){
+    var dupe = getPasswordByUID(pws[i].uid);
+    console.log('Dupe: ' + dupe);
+    var index = psGlobals.passwords.indexOf(dupe);
+    console.log('index: ' + index);
+    if(dupe && index !== -1){
+      //This password is already in the global list, overwrite it.
+      psGlobals.passwords[index] = pws[i];
+    } else {
+      //Previously unknown password
+      psGlobals.passwords.push(pws[i]);
+    }
+  }
+  renderPasswords();
 }
 
 function clickedPasswordEdit(event){
