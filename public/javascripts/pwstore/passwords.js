@@ -66,12 +66,13 @@ function doneEditing(event, val){
 }
 
 function storePassword(edited){
-  encryptedPassword = ezenc(JSON.stringify(edited), psGlobals.storageEncKey, psGlobals.storageSignKey);
+  var encryptedPassword = ezenc(JSON.stringify(edited), psGlobals.storageEncKey, psGlobals.storageSignKey);
+  var encryptedPasswordJSON = JSON.stringify(encryptedPassword);
   $.ajax({
     type: "POST",
     url: "/apistore",
     data: {type: 'pass',
-      data: JSON.stringify(encryptedPassword),
+      data: encryptedPasswordJSON,
       uid: edited.uid}
   })
   .done(function(data){
@@ -83,6 +84,7 @@ function storePassword(edited){
   }).fail(function() {
     console.log('Failed to store password, could not contact server.');
   });
+  psGlobals.socket.emit('updatedobject', {uid: edited.uid, cipher: encryptedPasswordJSON});
 }
 
 function fetchAllPasswords(){
@@ -133,6 +135,18 @@ function updateGlobalPasswords(pws){
   }
   renderPasswords();
 }
+
+function updateGlobalPassword(pw){
+  var arr = new Array();
+  arr.push(pw);
+  updateGlobalPasswords(arr);
+}
+
+function updateFromCipher(cipher){
+  var clearBytes = ezdec(JSON.parse(cipher), psGlobals.storageEncKey, psGlobals.storageSignKey);
+  var clear = asmCrypto.bytes_to_string(clearBytes);
+  updateGlobalPassword(JSON.parse(clear));
+  }
 
 function clickedPasswordEdit(event){
   var uid = event.target.id.substring(13);

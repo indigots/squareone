@@ -123,7 +123,8 @@ function setupIO(){
       console.log('Update was from myself, ignoring. UID: ' + data.uid);
     } else {
       console.log('Update was from another session. UID: ' + data.uid);
-      //TODO update object
+      console.log('Got cipher text: ' + data.cipher);
+      updateFromCipher(data.cipher);
     }
   });
 }

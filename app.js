@@ -155,7 +155,6 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
-//io.use(sessionMiddleware);
 io.use(sharedSession(sessionMiddleware, {autoSave: true}));
 io.on('connection', function(socket){
   console.log(JSON.stringify(socket.handshake.session));
@@ -175,7 +174,7 @@ io.on('connection', function(socket){
       }
       if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
         console.log(socket.handshake.session.user.name + ' is authenticated and sending an object update.');
-        io.to(user).emit('updatedobject', {uid: data.uid, origin: socket.id});
+        io.to(user).emit('updatedobject', {uid: data.uid, origin: socket.id, cipher: data.cipher});
       } else {
         console.log('an unauthed user tried to send a message.');
       }
