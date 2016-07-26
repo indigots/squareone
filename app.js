@@ -2,6 +2,9 @@ var port = 3003;
 
 var express = require('express');
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var sharedSession = require('express-socket.io-session');
 var cookieParser = require('cookie-parser');
 var compression = require('compression');
 var favicon = require('serve-favicon');
@@ -28,13 +31,14 @@ mysqloptions.database = mysqloptions.sessiondatabase;
 var connection = mysql.createConnection(mysqloptions);
 var sessionStore = new MySQLStore({}, connection);
 var halfHour = 1800000;
-app.use(session({
+var sessionMiddleware = session({
   secret: options.sessionSecret,
   store: sessionStore,
   maxAge: halfHour,
   resave: true,
   saveUninitialized: true
-}));
+});
+app.use(sessionMiddleware);
 
 var captcha = require('easy-captcha');
 app.use('/captcha.jpg', captcha.generate());
@@ -151,8 +155,38 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
+//io.use(sessionMiddleware);
+io.use(sharedSession(sessionMiddleware, {autoSave: true}));
+io.on('connection', function(socket){
+  console.log(JSON.stringify(socket.handshake.session));
+  if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
+    var user = socket.handshake.session.user.name;
+    console.log(user + ' is authenticated and on the socket.');
+    socket.join(user);
+  } else {
+    console.log('an unauthed user connected');
+  }
+  socket.on('updatedobject', function(data){
+    socket.handshake.session.reload(updatedSession);
+    function updatedSession(err){
+      if(err){
+        console.log('Error reloading session: ' + err);
+        return;
+      }
+      if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
+        console.log(socket.handshake.session.user.name + ' is authenticated and sending an object update.');
+        io.to(user).emit('updatedobject', {uid: data.uid, origin: socket.id});
+      } else {
+        console.log('an unauthed user tried to send a message.');
+      }
+    }
+  });
+});
 
+//app.listen(port, function() {
+//  console.log('PW Store listening on port ' + port);
+//});
 
-app.listen(port, function() {
+http.listen(port, function() {
   console.log('PW Store listening on port ' + port);
 });

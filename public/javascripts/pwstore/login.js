@@ -59,6 +59,7 @@ function apiLogin(username, pass){
       $('#password-div').show();
       renderPasswords();
       fetchAllPasswords();
+      setupIO();
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);
@@ -112,4 +113,17 @@ function zeroKeys(){
   psGlobals.storageEncKey = '0000000000000000000000000000000000000000000000000000000000000000';
   psGlobals.storageSignKey = '0000000000000000000000000000000000000000000000000000000000000000';
   psGlobals.passKey = '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+}
+
+function setupIO(){
+  psGlobals.socket = io();
+  psGlobals.socket.on('updatedobject', function(data){
+    console.log('Got updatedobject io event: ' + JSON.stringify(data));
+    if('/#' + psGlobals.socket.io.engine.id === data.origin){
+      console.log('Update was from myself, ignoring. UID: ' + data.uid);
+    } else {
+      console.log('Update was from another session. UID: ' + data.uid);
+      //TODO update object
+    }
+  });
 }
