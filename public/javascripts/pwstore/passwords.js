@@ -13,10 +13,10 @@ function renderPassword(inPassword, inIndex){
     '<div id="PASSWORDUID-passitem" class="password-item" tabindex="' + inIndex + '">' +
     '<span class="password-label editable" field="label">PASSWORDLABEL</span><br>' +
     '<span class="password-username editable" field="username">PASSWORDUSERNAME</span><a href="#" class="copy-button">copy</a><br>' +
-    '<h5 class="password-password editable" field="password">PASSWORDPASSWORD</h5>' +
-    '<h5><a class="password-url editable" href="PASSWORDURL" target="_blank" field="url">PASSWORDURL</a></h5>' +
-    '<h5 class="password-notes editable" field="notes">PASSWORDNOTES</h5>' +
-    '<h5 class="password-tags editable" field="tags">PASSWORDTAGS</h5>' +
+    '<span class="password-password editable" field="password">PASSWORDPASSWORD</span><br>' +
+    '<span class="password-url editable" field="url">PASSWORDURL</span><a class="password-url-link" href="PASSWORDURL" target="_blank" field="url">link</a><br>' +
+    '<span class="password-notes editable" field="notes">PASSWORDNOTES</span><br>' +
+    '<span class="password-tags editable" field="tags">PASSWORDTAGS</span>' +
     '</div>';
   var toReturn = addTemplate
     .replace('PASSWORDLABEL', _.escape(inPassword.label))
@@ -24,7 +24,7 @@ function renderPassword(inPassword, inIndex){
     .replace('PASSWORDUSERNAME', inPassword.username)
     .replace('PASSWORDPASSWORD', inPassword.password)
     .replace('PASSWORDURL', inPassword.url)
-    .replace('PASSWORDURL', inPassword.url)
+    .replace('PASSWORDURL', normalizeLink(inPassword.url))
     .replace('PASSWORDNOTES', inPassword.notes)
     .replace('PASSWORDTAGS', inPassword.tags);
   return toReturn;
@@ -32,6 +32,7 @@ function renderPassword(inPassword, inIndex){
 
 function renderPasswords(){
   var newHtml = '';
+  psGlobals.passwords = _.sortBy(psGlobals.passwords, 'label');
   for(var i=0; i<psGlobals.passwords.length; i++){
     newHtml += renderPassword(psGlobals.passwords[i], i);
   }
@@ -60,6 +61,12 @@ function doneEditing(event, val){
   if(previousVal !== val){
     console.log('Value changed, storing...');
     storePassword(edited);
+    if(field === 'url'){
+      $('#' + event.target.parentNode.id + ' .password-url-link').attr('href', normalizeLink(val));
+    }
+    if(field === 'label'){ // Alphabetical order may have changed
+      renderPasswords();
+    }
   } else {
     console.log('Value remained same skipping save.');
   }
@@ -185,4 +192,8 @@ function selectText(toSelect){
     selection.removeAllRanges();
     selection.addRange(range);
   }
+}
+
+function normalizeLink(val){
+  return ((val.indexOf('://') == -1) ? 'http://' + val : val);
 }
