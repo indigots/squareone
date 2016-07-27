@@ -3,7 +3,6 @@ $(document).ready(function(){
 });
 
 function addPassword(){
-  console.log('Adding password...');
   psGlobals.passwords.push(new pw('New', createUID()));
   renderPasswords();
 }
@@ -51,15 +50,11 @@ function renderPasswords(){
 }
 
 function doneEditing(event, val){
-  console.log('ID of parent of edited: ' + event.target.parentNode.id);
   var edited = getPasswordByUID(event.target.parentNode.id.substring(0,26));
-  console.log('Label of edited password ' + edited.label);
   var field = event.target.getAttribute('field');
-  console.log('Field type edited: ' + field);
   var previousVal = edited[field];
   edited[field] = val;
   if(previousVal !== val){
-    console.log('Value changed, storing...');
     storePassword(edited);
     if(field === 'url'){
       $('#' + event.target.parentNode.id + ' .password-url-link').attr('href', normalizeLink(val));
@@ -68,7 +63,6 @@ function doneEditing(event, val){
       renderPasswords();
     }
   } else {
-    console.log('Value remained same skipping save.');
   }
 }
 
@@ -108,7 +102,7 @@ function fetchAllPasswords(){
     }
     if(Array.isArray(data.data)){
       var rows = data.data;
-      console.log('Got passwords.');
+      //console.log('Got passwords.');
       var clearPasswords = new Array();
       for(var i=0; i<rows.length; i++){
         console.log(rows[i]);
@@ -130,9 +124,7 @@ function fetchAllPasswords(){
 function updateGlobalPasswords(pws){
   for(var i=0; i<pws.length; i++){
     var dupe = getPasswordByUID(pws[i].uid);
-    console.log('Dupe: ' + dupe);
     var index = psGlobals.passwords.indexOf(dupe);
-    console.log('index: ' + index);
     if(dupe && index !== -1){
       //This password is already in the global list, overwrite it.
       psGlobals.passwords[index] = pws[i];
@@ -158,7 +150,6 @@ function updateFromCipher(cipher){
 
 function clickedDelete(event){
   var uid = event.target.id.substring(15);
-  console.log('Clicked delete on password with uid: ' + uid);
   psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
   renderPasswords();
   $.ajax({
