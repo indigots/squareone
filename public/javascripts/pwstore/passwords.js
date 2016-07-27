@@ -12,9 +12,9 @@ function renderPassword(inPassword, inIndex){
   var addTemplate = 
     '<div id="PASSWORDUID-passitem" class="password-item" tabindex="' + inIndex + '">' +
     '<span class="password-label editable" field="label">PASSWORDLABEL</span><br>' +
-    '<span class="password-username editable" field="username">PASSWORDUSERNAME</span><a href="#" class="copy-button">copy</a><br>' +
-    '<span class="password-password editable" field="password">PASSWORDPASSWORD</span><br>' +
-    '<span class="password-url editable" field="url">PASSWORDURL</span><a class="password-url-link" href="PASSWORDURL" target="_blank" field="url">link</a><br>' +
+    '<span class="password-username editable" field="username">PASSWORDUSERNAME</span> <a href="#" class="copy-button">copy</a><br>' +
+    '<span class="password-password editable" field="password">PASSWORDPASSWORD</span> <a href="#" class="copy-button">copy</a><br>' +
+    '<span class="password-url editable" field="url">PASSWORDURL</span> <a class="password-url-link" href="PASSWORDURL" target="_blank" field="url">link</a><br>' +
     '<span class="password-notes editable" field="notes">PASSWORDNOTES</span><br>' +
     '<span class="password-tags editable" field="tags">PASSWORDTAGS</span>' +
     '</div>';
