@@ -86,6 +86,7 @@ function logoutClicked(){
 }
 
 function logout(){
+  psGlobals.socket.disconnect();
   $.ajax({
     type: "POST",
     url: "/apilogout",
@@ -119,7 +120,7 @@ function setupIO(){
   psGlobals.socket = io();
   psGlobals.socket.on('updatedobject', function(data){
     console.log('Got updatedobject io event: ' + JSON.stringify(data));
-    if('/#' + psGlobals.socket.io.engine.id === data.origin){
+    if(psGlobals.socket.io.engine.id === data.origin){
       console.log('Update was from myself, ignoring. UID: ' + data.uid);
     } else {
       console.log('Update was from another session. UID: ' + data.uid);

@@ -113,8 +113,10 @@ function apiStore(req, res){
     && req.body.uid 
     && req.body.type 
     && req.body.data
+    && req.body.id
   ){
     user.upsertObject(name, req.body.uid, req.body.type, req.body.data, doneUpsert);
+    io.to(name).emit('updatedobject', {uid: req.body.uid, cipher: req.body.data, origin: req.body.id});
   } else {
     res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
   }
@@ -165,26 +167,7 @@ io.on('connection', function(socket){
   } else {
     console.log('an unauthed user connected');
   }
-  socket.on('updatedobject', function(data){
-    socket.handshake.session.reload(updatedSession);
-    function updatedSession(err){
-      if(err){
-        console.log('Error reloading session: ' + err);
-        return;
-      }
-      if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
-        console.log(socket.handshake.session.user.name + ' is authenticated and sending an object update.');
-        io.to(user).emit('updatedobject', {uid: data.uid, origin: socket.id, cipher: data.cipher});
-      } else {
-        console.log('an unauthed user tried to send a message.');
-      }
-    }
-  });
 });
-
-//app.listen(port, function() {
-//  console.log('PW Store listening on port ' + port);
-//});
 
 http.listen(port, function() {
   console.log('PW Store listening on port ' + port);

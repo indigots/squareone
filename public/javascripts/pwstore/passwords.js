@@ -73,7 +73,8 @@ function storePassword(edited){
     url: "/apistore",
     data: {type: 'pass',
       data: encryptedPasswordJSON,
-      uid: edited.uid}
+      uid: edited.uid,
+      id: psGlobals.socket.io.engine.id}
   })
   .done(function(data){
     if(data.result === 'success'){
@@ -84,7 +85,7 @@ function storePassword(edited){
   }).fail(function() {
     console.log('Failed to store password, could not contact server.');
   });
-  psGlobals.socket.emit('updatedobject', {uid: edited.uid, cipher: encryptedPasswordJSON});
+  //psGlobals.socket.emit('updatedobject', {uid: edited.uid, cipher: encryptedPasswordJSON});
 }
 
 function fetchAllPasswords(){
