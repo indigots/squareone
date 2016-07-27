@@ -2,7 +2,8 @@ var scrypt = require('scrypt');
 var pool;
 var _newUser = 'INSERT INTO user (name, pass, recoverypass, userdata, joined, lastlogin) VALUES (?,?,?,?,NOW(),NOW())';
 var _selectUser = 'SELECT * FROM user WHERE name = ?';
-var _upsertObject= 'INSERT INTO objectstore (username, created, uid, type, data) VALUES (?, NOW(), ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?';
+var _upsertObject = 'INSERT INTO objectstore (username, created, uid, type, data) VALUES (?, NOW(), ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?';
+var _deleteObject = 'DELETE FROM objectstore WHERE username = ? AND uid = ? AND type = ?';
 var _massFetch = 'SELECT created, type, uid, data FROM objectstore WHERE username = ? AND type = ? ORDER BY created DESC';
 
 function userManager(inPool) {
@@ -130,6 +131,26 @@ userManager.prototype.massFetch = function(name, type, callback){
         return;
       }
       callback(null, results);
+    }
+  }
+}
+userManager.prototype.deleteObject = function(name, uid, type, callback){
+  pool.getConnection(gotConnection);
+  function gotConnection(err, connection){
+    if(err){
+      console.log('Error getting connection. ' + err);
+      callback('error');
+      return;
+    }
+    connection.query(_deleteObject, [name, uid, type], doneDelete);
+    function doneDelete(err, results){
+      connection.release();
+      if(err){
+        console.log('Error deleting object: ' + err);
+        callback('error');
+        return;
+      }
+      callback(null);
     }
   }
 }

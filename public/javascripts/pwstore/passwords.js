@@ -37,15 +37,15 @@ function renderPasswords(){
     newHtml += renderPassword(psGlobals.passwords[i], i);
   }
   $('#password-list').html(newHtml);
-  /*for(var i=0; i<psGlobals.passwords.length; i++){
-    var editButton = $('<button/>', {
-      text: 'Edit',
-      id: 'editpassword-' + psGlobals.passwords[i].uid,
+  for(var i=0; i<psGlobals.passwords.length; i++){
+    var deleteButton = $('<button/>', {
+      text: 'Delete',
+      id: 'deletepassword-' + psGlobals.passwords[i].uid,
       'class': 'pure-button secondary-button',
-      click: clickedPasswordEdit
+      click: clickedDelete
     });
-    $('#' + psGlobals.passwords[i].uid + '-passitem').append(editButton);
-  }*/
+    $('#' + psGlobals.passwords[i].uid + '-passitem').append(deleteButton);
+  }
   $('.editable').editable().on('editsubmit', doneEditing);
   $('.copy-button').click(selectAndCopy);
 }
@@ -156,9 +156,27 @@ function updateFromCipher(cipher){
   updateGlobalPassword(JSON.parse(clear));
   }
 
-function clickedPasswordEdit(event){
-  var uid = event.target.id.substring(13);
-  console.log('Clicked edit on password with uid: ' + uid);
+function clickedDelete(event){
+  var uid = event.target.id.substring(15);
+  console.log('Clicked delete on password with uid: ' + uid);
+  psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
+  renderPasswords();
+  $.ajax({
+    type: "POST",
+    url: "/apidelete",
+    data: {type: 'pass',
+      uid: uid,
+      id: psGlobals.socket.io.engine.id}
+  })
+  .done(function(data){
+    if(data.result === 'success'){
+      console.log('Password deleted.');
+    } else {
+      console.log('Failed to delete password: ' + data.result);
+    }
+  }).fail(function() {
+    console.log('Failed to delete password, could not contact server.');
+  });
 }
 
 function getPasswordByUID(inUid){

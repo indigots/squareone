@@ -104,11 +104,11 @@ function apiLogout(req, res){
 app.post('/apistore', apiStore);
 function apiStore(req, res){
   res.setHeader('Content-Type', 'application/json');
-  var name = req.session.user.name;
-  if(!req.session.user.authenticated){
+  if(!req.session.user || !req.session.user.authenticated){
     res.send(JSON.stringify({result: 'noauth'}));
     return;
   }
+  var name = req.session.user.name;
   if(name 
     && req.body.uid 
     && req.body.type 
@@ -123,6 +123,33 @@ function apiStore(req, res){
   function doneUpsert(err){
     if(err){
       res.send(JSON.stringify({result: 'Error storing object to the db.'}));
+    } else {
+      res.send({result: 'success'});
+    }
+  }
+}
+
+app.post('/apidelete', apiDelete);
+function apiDelete(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  if(!req.session.user || !req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
+  var name = req.session.user.name;
+  if(name
+    && req.body.uid
+    && req.body.id
+    && req.body.type
+  ){
+    user.deleteObject(name, req.body.uid, req.body.type, doneDelete);
+    io.to(name).emit('deletedobject', {uid: req.body.uid, origin: req.body.id});
+  } else {
+    res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
+  }
+  function doneDelete(err){
+    if(err){
+      res.send(JSON.stringify({result: 'Error deleting object from the db.'}));
     } else {
       res.send({result: 'success'});
     }
