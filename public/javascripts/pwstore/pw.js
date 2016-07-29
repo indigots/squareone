@@ -8,6 +8,7 @@ function pw(a, b){
     this.notes = 'notes';
     this.tags = 'tags';
     this.history = new Array();
+    this.created = new Date();
   } else if(typeof(a)==='string' && b===undefined){
     var x = JSON.parse(a);
     _.extend(this, x);

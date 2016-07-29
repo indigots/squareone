@@ -9,7 +9,9 @@ $(document).ready(function(){
 });
 
 psGlobals = {
-  passwords: []
+  passwords: [],
+  undo: [],
+  redo: []
 };
 
 function doLogin(){
