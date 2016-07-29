@@ -116,7 +116,12 @@ function apiStore(req, res){
     && req.body.id
   ){
     user.upsertObject(name, req.body.uid, req.body.type, req.body.data, doneUpsert);
-    io.to(name).emit('updatedobject', {uid: req.body.uid, cipher: req.body.data, origin: req.body.id});
+    var userSocket = io.sockets.connected['/#' + req.body.id];
+    if(userSocket){
+      userSocket.broadcast.to(name).emit('updatedobject', req.body.data);
+    } else {
+      console.log('Could not find user in socket list. Cannot broadcast to sockets.');
+    }
   } else {
     res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
   }
@@ -143,7 +148,12 @@ function apiDelete(req, res){
     && req.body.type
   ){
     user.deleteObject(name, req.body.uid, req.body.type, doneDelete);
-    io.to(name).emit('deletedobject', {uid: req.body.uid, origin: req.body.id});
+    var userSocket = io.sockets.connected['/#' + req.body.id];
+    if(userSocket){
+      userSocket.broadcast.to(name).emit('deletedobject', req.body.uid);
+    } else {
+      console.log('Could not find user in socket list. Cannot broadcast to sockets.');
+    }
   } else {
     res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
   }

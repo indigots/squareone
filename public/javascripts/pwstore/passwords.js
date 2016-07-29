@@ -81,8 +81,7 @@ function doneEditing(event, val){
     if(field === 'label'){ // Alphabetical order may have changed
       renderPasswords();
     }
-    psGlobals.undo.push({type: 'fieldchange', field: field, previousvalue: oldVal, uid: edited.uid});
-    renderUndo();
+    addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, uid: edited.uid});
   } else {
     console.log('field did not change.');
   }
@@ -174,7 +173,7 @@ function clickedDelete(event){
   var uid = event.target.id.substring(15);
   var deleted = getPasswordByUID(uid);
   psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
-  psGlobals.undo.push({type: 'delete', password: deleted});
+  addToUndo({type: 'delete', password: deleted});
   renderPasswords();
   $.ajax({
     type: "POST",
@@ -244,4 +243,9 @@ function undo(){
   }
   psGlobals.redo.push(change);
   renderPasswords();
+}
+
+function addToUndo(change){
+  psGlobals.undo.push(change);
+  renderUndo();
 }

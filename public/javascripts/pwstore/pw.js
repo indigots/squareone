@@ -1,7 +1,7 @@
 function pw(a, b){
   if(typeof(a)==='string' && typeof(b)==='string'){
-    this.label = inLabel;
-    this.uid = inUID; 
+    this.label = a;
+    this.uid = b; 
     this.username = 'username';
     this.password = 'password';
     this.url = 'url';

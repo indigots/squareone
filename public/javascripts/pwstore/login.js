@@ -120,24 +120,13 @@ function zeroKeys(){
 
 function setupIO(){
   psGlobals.socket = io();
-  psGlobals.socket.on('updatedobject', function(data){
-    console.log('Got updatedobject io event: ' + JSON.stringify(data));
-    if(psGlobals.socket.io.engine.id === data.origin){
-      console.log('Update was from myself, ignoring. UID: ' + data.uid);
-    } else {
-      console.log('Update was from another session. UID: ' + data.uid);
-      console.log('Got cipher text: ' + data.cipher);
-      updateFromCipher(data.cipher);
-    }
+  psGlobals.socket.on('updatedobject', function(cipher){
+    console.log('Got updatedobject io event: ' + JSON.stringify(cipher));
+    updateFromCipher(cipher);
   });
-  psGlobals.socket.on('deletedobject', function(data){
-    console.log('Got deletedobject io event: ' + JSON.stringify(data));
-    if(psGlobals.socket.io.engine.id === data.origin){
-      console.log('Update was from myself, ignoring. UID: ' + data.uid);
-    } else {
-      console.log('Update was from another session. UID: ' + data.uid);
-      psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === data.uid; });
-      renderPasswords();
-    }
+  psGlobals.socket.on('deletedobject', function(uid){
+    console.log('Got deletedobject io event: ' + uid);
+    psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
+    renderPasswords();
   });
 }
