@@ -52,7 +52,7 @@ function renderPasswords(){
 function doneEditing(event, val){
   var edited = getPasswordByUID(event.target.parentNode.id.substring(0,26));
   var field = event.target.getAttribute('field');
-  var previousVal = edited[field];
+  /*var previousVal = edited[field];
   edited[field] = val;
   if(previousVal !== val){
     storePassword(edited);
@@ -63,8 +63,17 @@ function doneEditing(event, val){
       renderPasswords();
     }
   } else {
+  } */
+  if(edited.update(field, val)){
+    console.log('field changed: ' + field + ' ' + val + ' ' + edited.uid);
+    storePassword(edited);
+    if(field === 'label'){ // Alphabetical order may have changed
+      renderPasswords();
+    }
+  } else {
+    console.log('field did not change.');
   }
-}
+} 
 
 function storePassword(edited){
   var encryptedPassword = ezenc(JSON.stringify(edited), psGlobals.storageEncKey, psGlobals.storageSignKey);
@@ -110,7 +119,7 @@ function fetchAllPasswords(){
         var clearBytes = ezdec(JSON.parse(rows[i].data), psGlobals.storageEncKey, psGlobals.storageSignKey);
         var clear = asmCrypto.bytes_to_string(clearBytes);
         console.log(clear);
-        clearPasswords.push(JSON.parse(clear));
+        clearPasswords.push(new pw(clear));
       }
       updateGlobalPasswords(clearPasswords);
     } else {
@@ -145,8 +154,8 @@ function updateGlobalPassword(pw){
 function updateFromCipher(cipher){
   var clearBytes = ezdec(JSON.parse(cipher), psGlobals.storageEncKey, psGlobals.storageSignKey);
   var clear = asmCrypto.bytes_to_string(clearBytes);
-  updateGlobalPassword(JSON.parse(clear));
-  }
+  updateGlobalPassword(new pw(clear));
+}
 
 function clickedDelete(event){
   var uid = event.target.id.substring(15);
