@@ -1,6 +1,7 @@
 $(document).ready(function(){
   $('#add-pass-button').click(addPassword);
   $('#undo-button').click(undo);
+  $('#redo-button').click(redo);
 });
 
 function addPassword(){
@@ -52,10 +53,15 @@ function renderPasswords(){
 }
 
 function renderUndo(){
-  if(psGlobals.undo.length===0){
-    $('#undo-button').prop('disabled', true);
+  if(psGlobals.changelistindex===0){
+    $('#undo-button').hide();
   } else {
-    $('#undo-button').prop('disabled', false);
+    $('#undo-button').show();
+  }
+  if(psGlobals.changelistindex===psGlobals.changelist.length){
+    $('#redo-button').hide();
+  } else {
+    $('#redo-button').show();
   }
 }
 
@@ -81,7 +87,7 @@ function doneEditing(event, val){
     if(field === 'label'){ // Alphabetical order may have changed
       renderPasswords();
     }
-    addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, uid: edited.uid});
+    addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, newvalue: val, uid: edited.uid});
   } else {
     console.log('field did not change.');
   }
@@ -171,10 +177,14 @@ function updateFromCipher(cipher){
 
 function clickedDelete(event){
   var uid = event.target.id.substring(15);
+  var deleted = deletePassword(uid); 
+  addToUndo({type: 'delete', password: deleted, uid: deleted.uid});
+  renderPasswords();
+}
+
+function deletePassword(uid){
   var deleted = getPasswordByUID(uid);
   psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
-  addToUndo({type: 'delete', password: deleted});
-  renderPasswords();
   $.ajax({
     type: "POST",
     url: "/apidelete",
@@ -191,6 +201,7 @@ function clickedDelete(event){
   }).fail(function() {
     console.log('Failed to delete password, could not contact server.');
   });
+  return deleted;
 }
 
 function getPasswordByUID(inUid){
@@ -231,7 +242,7 @@ function normalizeLink(val){
 }
 
 function undo(){
-  var change = psGlobals.undo.pop();
+  var change = psGlobals.changelist[psGlobals.changelistindex-1];
   if(!change){return;}
   if(change.type==='delete'){
     psGlobals.passwords.push(change.password);
@@ -241,11 +252,27 @@ function undo(){
     pass[change.field] = change.previousvalue;
     storePassword(pass);
   }
-  psGlobals.redo.push(change);
+  psGlobals.changelistindex--;
+  renderPasswords();
+}
+
+function redo(){
+  var change = psGlobals.changelist[psGlobals.changelistindex];
+  if(!change){return;}
+  if(change.type==='delete'){
+    deletePassword(change.uid);
+  } else if(change.type==='fieldchange'){
+    var pass = getPasswordByUID(change.uid);
+    pass[change.field] = change.newvalue;
+    storePassword(pass);
+  }
+  psGlobals.changelistindex++;
   renderPasswords();
 }
 
 function addToUndo(change){
-  psGlobals.undo.push(change);
+  psGlobals.changelist = _.first(psGlobals.changelist, psGlobals.changelistindex);
+  psGlobals.changelist.push(change);
+  psGlobals.changelistindex++;
   renderUndo();
 }

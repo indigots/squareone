@@ -10,8 +10,8 @@ $(document).ready(function(){
 
 psGlobals = {
   passwords: [],
-  undo: [],
-  redo: []
+  changelist: [],
+  changelistindex: 0
 };
 
 function doLogin(){
