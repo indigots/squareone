@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PWStore - Login</title>
   <link rel='stylesheet' href='/stylesheets/pure/pure-min.css' />
-  <link rel='stylesheet' href='/stylesheets/login.css' />
+  <link rel='stylesheet' href='/stylesheets/pwstore.css' />
   <script type="text/javascript" src="/javascripts/jquery/jquery-3.0.0.min.js"></script>
   <script type="text/javascript" src="/javascripts/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="/javascripts/asmcrypto/asmcrypto.js"></script>
@@ -14,6 +14,12 @@
   <script type="text/javascript" src="/javascripts/pwstore/passwords.js"></script>
   <script type="text/javascript" src="/javascripts/pwstore/pw.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<!--[if lte IE 8]>
+    <link rel="stylesheet" href="/stylesheets/pure/grids-responsive-old-ie-min.css">
+<![endif]-->
+<!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="/stylesheets/pure/grids-responsive-min.css">
+<!--<![endif]-->
 </head>
 <body>
   <div id="login-div">
