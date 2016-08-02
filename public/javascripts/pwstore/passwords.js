@@ -11,16 +11,16 @@ function addPassword(){
 
 function renderPassword(inPassword, inIndex){
   var addTemplate = 
-    '<div id="PASSWORDUID-passitem" class="password-item pure-g" tabindex="' + inIndex + '">' +
-    '<div class="password-label editable pure-u-1" field="label">PASSWORDLABEL</div>' +
+    '<div id="PASSWORDUID" class="password-item pure-g" tabindex="' + inIndex + '">' +
+    '<div><div class="password-label editable pure-u-1" field="label">PASSWORDLABEL</div></div>' +
     '<div class="pure-u-1 pure-u-md-1-3">' + 
-      '<span class="field-title">Username:</span> <span class="password-username editable field" field="username">PASSWORDUSERNAME</span> <a href="#" class="copy-button">copy</a>' + 
+      '<span class="field-title">Username:</span> <span class="password-username editable field" field="username">PASSWORDUSERNAME</span> <a href="#" class="copy-button pure-button secondary-button"><i class="fa fa-clipboard"></i></a>' + 
     '</div>' +
     '<div class="pure-u-1 pure-u-md-1-3">' + 
-      '<span class="field-title">Password:</span> <span class="password-password editable field" field="password">PASSWORDPASSWORD</span> <a href="#" class="copy-button">copy</a>' +
+      '<span class="field-title">Password:</span> <span class="password-password editable field" field="password">PASSWORDPASSWORD</span> <a href="#" class="copy-button pure-button secondary-button"><i class="fa fa-clipboard"></i></a>' +
     '</div>' + 
     '<div class="pure-u-1 pure-u-md-1-3">' +
-      '<span class="field-title">URL:</span> <span class="password-url editable field" field="url">PASSWORDURL</span> <a class="password-url-link" href="PASSWORDURL" target="_blank" field="url">link</a>' +
+      '<span class="field-title">URL:</span> <span class="password-url editable field" field="url">PASSWORDURL</span> <a class="password-url-link pure-button secondary-button" href="PASSWORDURL" target="_blank" field="url"><i class="fa fa-external-link"></i></a>' +
     '</div>' +
     '<div class="pure-u-1">' + 
       '<span class="field-title">Notes:</span> <span class="password-notes editable field" field="notes">PASSWORDNOTES</span>' +
@@ -28,7 +28,9 @@ function renderPassword(inPassword, inIndex){
     '<div class="pure-u-1">' +
       '<span class="field-title">Tags:</span> <span class="password-tags editable field" field="tags">PASSWORDTAGS</span>' +
     '</div>' + 
-    '<div class="pure-u-1"><button class="delete-button pure-button secondary-button">Delete</button></div>' +
+    '<div class="pure-u-1">' +
+      '<button class="delete-button pure-button secondary-button"><i class="fa fa-trash"></i></button>' +
+    '</div>' +
     '</div>';
   var toReturn = addTemplate
     .replace('PASSWORDLABEL', _.escape(inPassword.label))
@@ -78,7 +80,7 @@ function renderUndo(){
 }
 
 function doneEditing(event, val){
-  var edited = getPasswordByUID(event.target.parentNode.parentNode.id.substring(0,26));
+  var edited = getPasswordByUID(event.target.parentNode.parentNode.id);
   var field = event.target.getAttribute('field');
   /*var previousVal = edited[field];
   edited[field] = val;
@@ -188,7 +190,7 @@ function updateFromCipher(cipher){
 }
 
 function clickedDelete(event){
-  var uid = event.target.parentNode.parentNode.id.substring(0,26);
+  var uid = event.target.parentNode.parentNode.id;
   var deleted = deletePassword(uid); 
   addToUndo({type: 'delete', password: deleted, uid: deleted.uid});
   renderPasswords();
