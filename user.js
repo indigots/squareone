@@ -23,7 +23,7 @@ userManager.prototype.addUser = function(inData, callback) {
     }
     var end = new Date();
     var diff = end - start;
-    console.log('scrypt took: ' + diff + 'ms');
+    //console.log('scrypt took: ' + diff + 'ms');
     passHash = hash.toString("base64");
     start = new Date();
     scrypt.kdf(inData.recoverypass, {'N':18, 'r':8, 'p':1}, recoveryHashDone);
@@ -35,7 +35,7 @@ userManager.prototype.addUser = function(inData, callback) {
       return;
     }
     var diff = (new Date()) - start;
-    console.log('scrypt took: ' + diff + 'ms');
+    //console.log('scrypt took: ' + diff + 'ms');
     recoveryHash = hash.toString("base64");
     pool.getConnection(gotConnection);
   }

@@ -22,12 +22,13 @@ function renderPassword(inPassword, inIndex){
     '<div class="pure-u-1 pure-u-md-1-3">' +
       '<span class="field-title">URL:</span> <span class="password-url editable field" field="url">PASSWORDURL</span> <a class="password-url-link" href="PASSWORDURL" target="_blank" field="url">link</a>' +
     '</div>' +
-    '<div class="pure-u-1>' + 
+    '<div class="pure-u-1">' + 
       '<span class="field-title">Notes:</span> <span class="password-notes editable field" field="notes">PASSWORDNOTES</span>' +
     '</div>' + 
-    '<div class="pure-u-1>' +
+    '<div class="pure-u-1">' +
       '<span class="field-title">Tags:</span> <span class="password-tags editable field" field="tags">PASSWORDTAGS</span>' +
     '</div>' + 
+    '<div class="pure-u-1"><button class="delete-button pure-button secondary-button">Delete</button></div>' +
     '</div>';
   var toReturn = addTemplate
     .replace('PASSWORDLABEL', _.escape(inPassword.label))
@@ -48,7 +49,7 @@ function renderPasswords(){
     newHtml += renderPassword(psGlobals.passwords[i], i);
   }
   $('#password-list').html(newHtml);
-  for(var i=0; i<psGlobals.passwords.length; i++){
+  /*for(var i=0; i<psGlobals.passwords.length; i++){
     var deleteButton = $('<button/>', {
       text: 'Delete',
       id: 'deletepassword-' + psGlobals.passwords[i].uid,
@@ -56,7 +57,8 @@ function renderPasswords(){
       click: clickedDelete
     });
     $('#' + psGlobals.passwords[i].uid + '-passitem').append(deleteButton);
-  }
+  }*/
+  $('.delete-button').click(clickedDelete);
   $('.editable').editable().on('editsubmit', doneEditing);
   $('.copy-button').click(selectAndCopy);
   renderUndo();
@@ -92,14 +94,14 @@ function doneEditing(event, val){
   } */
   var oldVal = edited[field];
   if(edited.update(field, val)){
-    console.log('field changed: ' + field + ' ' + val + ' ' + edited.uid);
+    //console.log('field changed: ' + field + ' ' + val + ' ' + edited.uid);
     storePassword(edited);
     if(field === 'label'){ // Alphabetical order may have changed
       renderPasswords();
     }
     addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, newvalue: val, uid: edited.uid});
   } else {
-    console.log('field did not change.');
+    //console.log('field did not change.');
   }
 } 
 
@@ -116,7 +118,7 @@ function storePassword(edited){
   })
   .done(function(data){
     if(data.result === 'success'){
-      console.log('Password stored.');
+      //console.log('Password stored.');
     } else {
       console.log('Failed to store password: ' + data.result);
     }
@@ -142,11 +144,11 @@ function fetchAllPasswords(){
       //console.log('Got passwords.');
       var clearPasswords = new Array();
       for(var i=0; i<rows.length; i++){
-        console.log(rows[i]);
-        console.log(JSON.stringify(rows[i]));
+        //console.log(rows[i]);
+        //console.log(JSON.stringify(rows[i]));
         var clearBytes = ezdec(JSON.parse(rows[i].data), psGlobals.storageEncKey, psGlobals.storageSignKey);
         var clear = asmCrypto.bytes_to_string(clearBytes);
-        console.log(clear);
+        //console.log(clear);
         clearPasswords.push(new pw(clear));
       }
       updateGlobalPasswords(clearPasswords);
@@ -186,7 +188,7 @@ function updateFromCipher(cipher){
 }
 
 function clickedDelete(event){
-  var uid = event.target.id.substring(15);
+  var uid = event.target.parentNode.parentNode.id.substring(0,26);
   var deleted = deletePassword(uid); 
   addToUndo({type: 'delete', password: deleted, uid: deleted.uid});
   renderPasswords();
@@ -204,7 +206,7 @@ function deletePassword(uid){
   })
   .done(function(data){
     if(data.result === 'success'){
-      console.log('Password deleted.');
+      //console.log('Password deleted.');
     } else {
       console.log('Failed to delete password: ' + data.result);
     }
@@ -223,8 +225,7 @@ function selectAndCopy(event){
   selectText(toSelect);
   try {
     var success = document.execCommand('copy');
-    if(success) console.log('Copied!');
-    else console.log('Unable to copy.');
+    if(!success) console.log('Unable to copy.');
   } catch(err) {
     console.log('Browser does not support copying text.');
   }

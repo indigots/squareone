@@ -89,7 +89,7 @@ function apiLogin(req, res){
     req.session.user.name = req.body.username;
     req.session.user.authenticated = true;
     res.send(JSON.stringify({result: 'success', userdata: userdata}));
-    console.log('Got success back from authentication.');
+    //console.log('Got success back from authentication.');
   }
 }
 
@@ -196,10 +196,10 @@ app.get('/', function (req, res) {
 });
 io.use(sharedSession(sessionMiddleware, {autoSave: true}));
 io.on('connection', function(socket){
-  console.log(JSON.stringify(socket.handshake.session));
+  //console.log(JSON.stringify(socket.handshake.session));
   if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
     var user = socket.handshake.session.user.name;
-    console.log(user + ' is authenticated and on the socket.');
+    //console.log(user + ' is authenticated and on the socket.');
     socket.join(user);
   } else {
     console.log('an unauthed user connected');
