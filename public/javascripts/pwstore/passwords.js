@@ -36,7 +36,7 @@ function renderPassword(inPassword, inIndex){
     .replace('PASSWORDLABEL', _.escape(inPassword.label))
     .replace('PASSWORDUID', inPassword.uid)
     .replace('PASSWORDUSERNAME', inPassword.username)
-    .replace('PASSWORDPASSWORD', inPassword.password)
+    .replace('PASSWORDPASSWORD', Array(inPassword.password.length+1).join('*'))
     .replace('PASSWORDURL', inPassword.url)
     .replace('PASSWORDURL', normalizeLink(inPassword.url))
     .replace('PASSWORDNOTES', inPassword.notes)
@@ -79,7 +79,7 @@ function renderUndo(){
   }
 }
 
-function doneEditing(event, val){
+function doneEditing(event, val, realval){
   var div = event.target.parentNode;
   var edited = getPasswordByUID(div.id);
   if(div.className.indexOf('password-item') === -1) {
@@ -99,13 +99,13 @@ function doneEditing(event, val){
   } else {
   } */
   var oldVal = edited[field];
-  if(edited.update(field, val)){
+  if(edited.update(field, realval)){
     //console.log('field changed: ' + field + ' ' + val + ' ' + edited.uid);
     storePassword(edited);
     if(field === 'label'){ // Alphabetical order may have changed
       renderPasswords();
     }
-    addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, newvalue: val, uid: edited.uid});
+    addToUndo({type: 'fieldchange', field: field, previousvalue: oldVal, newvalue: realval, uid: edited.uid});
   } else {
     //console.log('field did not change.');
   }
@@ -293,3 +293,47 @@ function addToUndo(change){
   psGlobals.changelistindex++;
   renderUndo();
 }
+
+$.fn.extend({
+  editable: function () {
+    $(this).each(function () {
+      var $el = $(this),
+      $edittextbox = $('<input type="text"></input>').css('min-width', $el.width()),
+      submitChanges = function () {
+        if ($edittextbox.val() !== '') {
+          if($el.attr('field') === 'password'){
+            $el.html(Array($edittextbox.val().length+1).join('*'));
+          } else {  
+            $el.html($edittextbox.val());
+          }
+          $el.show();
+          $el.trigger('editsubmit', [$el.html(), $edittextbox.val()]);
+          $(document).unbind('click', submitChanges);
+          $edittextbox.detach();
+        }
+      },
+      tempVal;
+      $edittextbox.click(function (event) {
+        event.stopPropagation();
+      });
+
+      $el.dblclick(function (e) {
+        tempVal = $el.html();
+        if($el.attr('field') === 'password'){
+          var pass = getPasswordByUID(e.target.parentNode.parentNode.id);
+          tempVal = pass.password;
+        }
+        $edittextbox.val(tempVal).insertBefore(this)
+                .bind('keypress', function (e) {
+          var code = (e.keyCode ? e.keyCode : e.which);
+          if (code == 13) {
+            submitChanges();
+          }
+        }).select();
+        $el.hide();
+        $(document).click(submitChanges);
+      });
+    });
+    return this;
+  }
+});
