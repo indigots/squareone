@@ -80,7 +80,11 @@ function renderUndo(){
 }
 
 function doneEditing(event, val){
-  var edited = getPasswordByUID(event.target.parentNode.parentNode.id);
+  var div = event.target.parentNode;
+  var edited = getPasswordByUID(div.id);
+  if(div.className.indexOf('password-item') === -1) {
+    edited = getPasswordByUID(div.parentNode.id);
+  }
   var field = event.target.getAttribute('field');
   /*var previousVal = edited[field];
   edited[field] = val;
