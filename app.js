@@ -40,10 +40,10 @@ var sessionMiddleware = session({
 });
 app.use(sessionMiddleware);
 
-var captcha = require('easy-captcha');
-app.use('/captcha.jpg', captcha.generate());
-app.post('/apiregister', captcha.check, apiVerifyCaptcha);
-function apiVerifyCaptcha(req, res){
+//#var captcha = require('easy-captcha');
+//#app.use('/captcha.jpg', captcha.generate());
+//app.post('/apiregister', captcha.check, apiVerifyCaptcha);
+/*function apiVerifyCaptcha(req, res){
   res.setHeader('Content-Type', 'application/json');
   if(!req.session.captcha.valid){
     res.send(JSON.stringify({result: 'Bad captcha'}));
@@ -51,7 +51,29 @@ function apiVerifyCaptcha(req, res){
     delete req.session.captcha.text;
     apiRegisterNew(req, res);
   }
+}*/
+var svgCaptcha = require('svg-captcha');
+var captchaOptions = {
+  size: 6,
+  ignoreChars: '0oO1iIl',
+  noise: 3
 }
+app.get('/captcha', function (req, res) {
+  var captcha = svgCaptcha.create(captchaOptions);
+  req.session.captcha = captcha.text;
+  res.status(200).send(captcha.data);
+});
+app.post('/apiregister', apiVerifyCaptcha);
+function apiVerifyCaptcha(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  if(req.session.captcha !== req.body.captcha || !req.session.captcha){
+    res.send(JSON.stringify({result: 'Bad captcha'}));
+  } else {
+    delete req.session.captcha;
+    apiRegisterNew(req, res);
+  }
+}
+
 function apiRegisterNew(req, res){
   user.addUser(req.body, result);
   function result(err){
