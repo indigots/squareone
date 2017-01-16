@@ -227,14 +227,22 @@ function getPasswordByUID(inUid){
 }
 
 function selectAndCopy(event){
+  event.preventDefault();
   var toSelect = $(this).prev().get(0);
-  selectText(toSelect);
+  var pass = getPasswordByUID($(this).parent().parent().attr('id'));
+  if(toSelect.getAttribute('field') === 'password'){
+    $('#temp-span').html(pass.password);
+    selectText(document.getElementById('temp-span'));
+  } else {
+    selectText(toSelect);
+  }
   try {
     var success = document.execCommand('copy');
     if(!success) console.log('Unable to copy.');
   } catch(err) {
     console.log('Browser does not support copying text.');
   }
+  $('#temp-span').html('');
 }
 
 function selectText(toSelect){
