@@ -14,6 +14,7 @@
   <script type="text/javascript" src="/javascripts/pwstore/util.js"></script>
   <script type="text/javascript" src="/javascripts/pwstore/passwords.js"></script>
   <script type="text/javascript" src="/javascripts/pwstore/pw.js"></script>
+  <script type="text/javascript" src="/javascripts/pwstore/changemaster.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <!--[if lte IE 8]>
     <link rel="stylesheet" href="/stylesheets/pure/grids-responsive-old-ie-min.css">
@@ -40,6 +41,21 @@
     <span id="login-status"></span><br />
   </div>
   <div id="password-div" style="display: none;"> 
+    <div class="menu-wrapper pure-g" id="menu">
+      <div class="pure-u-1 pure-u-md-1-3">
+        <div class=pure-menu">
+          <a href="#" class="pure-menu-heading menu-logo">SquareOne</a>
+        </div>
+      </div>
+      <div class="pure-u-2-3 pure-u-md-2-3">
+        <div class="pure-menu pure-menu-horizontal menu-transformable">
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link" id="change-master-button">Change Master Password</a></li>
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link" id="logout-menu-button">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <button id="add-pass-button" class="pure-button secondary-button"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add</button>
     <div id="password-list"></div>
     <button id="undo-button" class="pure-button secondary-button" style="display: none;">Undo</button>
@@ -47,5 +63,24 @@
     <button id="logout-button" class="pure-button secondary-button">Logout</button>
   </div>
   <div id="hidden-div"><span id="temp-span" style="position: absolute; left: -1000px; top: -1000px;"></span></div>
+  <div id="master-password-div" class="modal-overlay"><div id="master-password-content" class="modal-content">
+    <h2>Change Master Password</h2>
+    <form id="master-password-form" class="pure-form pure-form-aligned"><fieldset>
+      <div class="pure-control-group">
+        <label for="current-master-password">Current Password</label>
+        <input id="current-master-password" placeholder="Current" type="password" /><br>
+      </div>
+      <div class="pure-control-group">
+        <label for="new-master-password">New Master Password</label>
+        <input id="new-master-password" placeholder="New Password" type="password" /><br>
+      </div>
+      <div class="pure-control-group">
+        <label for="confirm-master-password">Confirm New Password</label>
+        <input id="confirm-master-password" placeholder="Confirm Password" type="password" /><br>
+      </div>
+      <input id="change-master-password-button" class="pure-button pure-button-primary" type="submit" value="Change Password" />
+      <button id="close-master-password-button" class="pure-button pure-button-primary">Cancel</button>
+    </fieldset></form>
+  </div></div>
 </body>
 </html>

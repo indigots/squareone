@@ -6,6 +6,10 @@ $(document).ready(function(){
   });
   kdfWorker = new Worker('/javascripts/pwstore/kdfworker.js');
   $('#logout-button').click(logoutClicked);
+  $('#logout-menu-button').click(function(event){
+    event.preventDefault();
+    logoutClicked();
+  });
 });
 
 psGlobals = {

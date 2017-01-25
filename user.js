@@ -1,10 +1,12 @@
 var scrypt = require('scrypt');
+var _ = require('underscore');
 var pool;
 var _newUser = 'INSERT INTO user (name, pass, recoverypass, userdata, joined, lastlogin) VALUES (?,?,?,?,NOW(),NOW())';
 var _selectUser = 'SELECT * FROM user WHERE name = ?';
 var _upsertObject = 'INSERT INTO objectstore (username, created, uid, type, data) VALUES (?, NOW(), ?, ?, ?) ON DUPLICATE KEY UPDATE data = ?';
 var _deleteObject = 'DELETE FROM objectstore WHERE username = ? AND uid = ? AND type = ?';
 var _massFetch = 'SELECT created, type, uid, data FROM objectstore WHERE username = ? AND type = ? ORDER BY created DESC';
+var _changePass = 'UPDATE user SET pass=?, userdata=? WHERE name = ?';
 
 function userManager(inPool) {
   pool = inPool;
@@ -93,6 +95,81 @@ userManager.prototype.authenticate = function(name, pass, callback){
       };
     };
   }; //blank pass else
+};
+
+userManager.prototype.changeMasterPassword = function(name, pass, newpass, userdata, callback){
+  var olduserdata = {};
+  pool.getConnection(gotConnection);
+  function gotConnection(err, connection){
+    if(err){
+      console.log('Error getting connection. ' + err);
+      callback(null, false);
+      return;
+    }
+    connection.query(_selectUser, [name], gotUser);
+    function gotUser(err, results){
+      connection.release();
+      if(err){
+        console.log('Error querying user. ' + err);
+        callback(null, false);
+        return;
+      }
+      if(results && results.length === 1){
+        olduserdata = JSON.parse(results[0].userdata);
+        _.extend(olduserdata, userdata);
+        verify(pass, results[0].pass, results[0]);
+      } else { 
+        callback(null, false);
+        return;
+      }
+    };
+  };
+  function verify(pass, storedPass, rowData){
+    scrypt.verifyKdf(new Buffer(storedPass, 'base64'), new Buffer(pass), scryptReturn);
+    function scryptReturn(err, results){
+      if(!err && results){
+        doNewScrypt();
+      } else if(!err){
+        callback('Current Password did not match.', false);
+      } else {
+        callback(null, false);
+      }
+    };
+  };
+  function doNewScrypt(){
+    var start = new Date();
+    scrypt.kdf(newpass, {'N':18, 'r':8, 'p':1}, hashDone);
+    function hashDone(err, hash){
+      if(err){
+        console.log('Error in scrypt: ' + err);
+        callback('error', false);
+        return;
+      }
+      var end = new Date();
+      var diff = end - start;
+    //console.log('scrypt took: ' + diff + 'ms');
+      passHash = hash.toString("base64");
+      doPassChange(passHash);
+    };
+  };
+  function doPassChange(scryptResults){
+    pool.getConnection(gotConnection2);
+    function gotConnection2(err, connection){
+      if(err){
+        console.log('Error getting connection.(2) ' + err);
+        callback(null, false);
+        return;
+      }
+      connection.query(_changePass, [scryptResults, JSON.stringify(olduserdata), name], didChange);
+      function didChange(err, results){
+        if(!err && results){
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      };
+    };
+  };
 };
 userManager.prototype.upsertObject = function(name, uid, type, data, callback){
   pool.getConnection(gotConnection);

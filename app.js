@@ -211,6 +211,28 @@ function apiMassFetch(req, res){
   }
 }
 
+app.post('/apichangemasterpassword', apiChangeMasterPassword);
+function apiChangeMasterPassword(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  if(!req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
+  var name = req.session.user.name;
+  if(name && req.body.currentpass && req.body.newpass && req.body.userdata){
+    user.changeMasterPassword(name, req.body.currentpass, req.body.newpass, req.body.userdata, doneChange);
+  } else {
+    res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
+  }
+  function doneChange(err, result){
+    if(err){
+      res.send(JSON.stringify({result: 'Error changing password: ' + err}));
+    } else {
+      res.send(JSON.stringify({result: 'success'}));
+    }
+  };
+};
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
