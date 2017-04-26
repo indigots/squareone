@@ -5,7 +5,7 @@ $(document).ready(function(){
 });
 
 function addPassword(){
-  psGlobals.passwords.push(new pw('New', createUID()));
+  psGlobals.passwords.push(new pw());
   renderPasswords();
 }
 
@@ -46,7 +46,11 @@ function renderPassword(inPassword, inIndex){
 
 function renderPasswords(){
   var newHtml = '';
-  psGlobals.passwords = _.sortBy(psGlobals.passwords, 'label');
+  var freshpasswords = _.filter(psGlobals.passwords, function(inpw){ return inpw.recentlynew; });
+  freshpasswords = _.sortBy(freshpasswords, 'created').reverse();
+  var oldpasswords = _.filter(psGlobals.passwords, function(inpw){ return !inpw.recentlynew; });
+  oldpasswords = _.sortBy(oldpasswords, 'label');
+  psGlobals.passwords = freshpasswords.concat(oldpasswords);
   for(var i=0; i<psGlobals.passwords.length; i++){
     newHtml += renderPassword(psGlobals.passwords[i], i);
   }

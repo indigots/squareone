@@ -1,7 +1,8 @@
 function pw(a, b){
-  if(typeof(a)==='string' && typeof(b)==='string'){
-    this.label = a;
-    this.uid = b; 
+  if(a===undefined && b===undefined){
+    this.recentlynew = true;
+    this.label = 'New';
+    this.uid = createUID();
     this.username = 'username';
     this.password = 'password';
     this.url = 'url';
@@ -12,6 +13,7 @@ function pw(a, b){
   } else if(typeof(a)==='string' && b===undefined){
     var x = JSON.parse(a);
     _.extend(this, x);
+    this.recentlynew = false;
   }
 }
 
