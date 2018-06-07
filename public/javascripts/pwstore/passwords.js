@@ -130,10 +130,12 @@ function storePassword(edited){
     if(data.result === 'success'){
       //console.log('Password stored.');
     } else {
+      alert('Failed to store password: ' + data.result);
       console.log('Failed to store password: ' + data.result);
     }
   }).fail(function() {
     console.log('Failed to store password, could not contact server.');
+    alert('Failed to store password, could not contact server.');
   });
   //psGlobals.socket.emit('updatedobject', {uid: edited.uid, cipher: encryptedPasswordJSON});
 }
@@ -147,6 +149,7 @@ function fetchAllPasswords(){
   .done(function(data){
     if(data.result !== 'success'){
       console.log('Failed to fetch passwords: ' + data.result);
+      alert('Failed to fetch passwords: ' + data.result);
       return; 
     }
     if(Array.isArray(data.data)){
@@ -167,6 +170,7 @@ function fetchAllPasswords(){
     }
   }).fail(function() {
     console.log('Failed to fetch passwords, could not contact server.');
+    alert('Failed to fetch passwords, could not contact server.');
   });
 }
 
@@ -219,9 +223,11 @@ function deletePassword(uid){
       //console.log('Password deleted.');
     } else {
       console.log('Failed to delete password: ' + data.result);
+      alert('Failed to delete password: ' + data.result);
     }
   }).fail(function() {
     console.log('Failed to delete password, could not contact server.');
+    alert('Failed to delete password, could not contact server.');
   });
   return deleted;
 }
