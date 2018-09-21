@@ -124,7 +124,7 @@ function storePassword(edited){
     data: {type: 'pass',
       data: encryptedPasswordJSON,
       uid: edited.uid,
-      id: psGlobals.socket.io.engine.id}
+      id: psGlobals.socket.id}
   })
   .done(function(data){
     if(data.result === 'success'){

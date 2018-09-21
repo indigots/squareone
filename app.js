@@ -10,6 +10,7 @@ var compression = require('compression');
 var favicon = require('serve-favicon');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 var mysqloptions = require('./mysqloptions');
 var options = require('./options');
@@ -138,11 +139,11 @@ function apiStore(req, res){
     && req.body.id
   ){
     user.upsertObject(name, req.body.uid, req.body.type, req.body.data, doneUpsert);
-    var userSocket = io.sockets.connected['/#' + req.body.id];
+    var userSocket = _.findWhere(io.sockets.sockets, {id: req.body.id});
     if(userSocket){
       userSocket.broadcast.to(name).emit('updatedobject', req.body.data);
     } else {
-      console.log('Could not find user in socket list. Cannot broadcast to sockets.');
+      console.log('Could not find socket with id "' + req.body.id + '" in socket list. Cannot broadcast to sockets.');
     }
   } else {
     res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
@@ -170,11 +171,11 @@ function apiDelete(req, res){
     && req.body.type
   ){
     user.deleteObject(name, req.body.uid, req.body.type, doneDelete);
-    var userSocket = io.sockets.connected['/#' + req.body.id];
+    var userSocket = _.findWhere(io.sockets.sockets, {id: req.body.id});
     if(userSocket){
       userSocket.broadcast.to(name).emit('deletedobject', req.body.uid);
     } else {
-      console.log('Could not find user in socket list. Cannot broadcast to sockets.');
+      console.log('Could not find socket with id "' + req.body.id + '" in socket list. Cannot broadcast to sockets.');
     }
   } else {
     res.send(JSON.stringify({result: 'There was an error in the inputs.'}));
@@ -243,7 +244,7 @@ io.on('connection', function(socket){
   //console.log(JSON.stringify(socket.handshake.session));
   if(socket.handshake.session && socket.handshake.session.user && socket.handshake.session.user.authenticated){
     var user = socket.handshake.session.user.name;
-    //console.log(user + ' is authenticated and on the socket.');
+    console.log('"' + user + '" is authenticated and on the socket.');
     socket.join(user);
   } else {
     console.log('an unauthed user connected');
