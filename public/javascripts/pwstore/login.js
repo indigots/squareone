@@ -15,7 +15,11 @@ $(document).ready(function(){
 psGlobals = {
   passwords: [],
   changelist: [],
-  changelistindex: 0
+  changelistindex: 0,
+  dashboard: {
+    sync: true,
+    ping: true 
+  }
 };
 
 function doLogin(){
@@ -66,6 +70,7 @@ function apiLogin(username, pass){
       renderPasswords();
       fetchAllPasswords();
       setupIO();
+      setInterval(pingStatus, 30000);
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);
@@ -133,4 +138,80 @@ function setupIO(){
     psGlobals.passwords = _.reject(psGlobals.passwords, function(pass){ return pass.uid === uid; });
     renderPasswords();
   });
+  psGlobals.socket.on('disconnect', function(){
+    //console.log('Socket was disconnected!');
+    dashboardUpdate('sync', false);
+  });
+  psGlobals.socket.on('reconnect', function(){
+    //console.log('Socket reconnected!');
+    dashboardUpdate('sync', true)
+  });
+}
+
+function pingStatus(){
+  if(!psGlobals.socket || psGlobals.socket.disconnected){
+    //console.log('Sync link down.');
+    dashboardUpdate('sync', false);
+  } else {
+    dashboardUpdate('sync', true);
+  }
+
+  $.ajax({
+    type: "POST",
+    url: "/apiping",
+    data: {}
+  }).done(function(data){
+    if(data.result === 'success'){
+      //console.log('Ping Successful.');
+      dashboardUpdate('ping', true);
+    } else if(data.result === 'noauth'){
+      //console.log('No longer authenticated.');
+      dashboardUpdate('ping', false);
+      location.reload();
+    } else {
+      //console.log('Ping error: ' + data.result);
+      dashboardUpdate('ping', false);
+      alert('Error communicating with server: ' + data.result);
+    }
+  }).fail(function() {
+    //console.log('Error pinging server, offline.');
+    dashboardUpdate('ping', false);
+  });
+}
+
+function dashboardUpdate(type, stat){
+  //console.log(type + ' ' + stat);
+  if(type === 'sync'){
+    if(psGlobals.dashboard.sync === stat){
+      //console.log('No dashboard change.');
+      return;
+    } else {
+      psGlobals.dashboard.sync = stat;
+      if(stat && psGlobals.dashboard.ping){
+        $('.dashboard').hide();
+        $('#sync-status').html('');
+      } else if(stat){
+        $('#sync-status').html('');
+      } else {
+        $('#sync-status').html('Syncing offline');
+        $('.dashboard').show();
+      }
+    }
+  } else if(type === 'ping'){
+    if(psGlobals.dashboard.ping === stat){
+      //console.log('No dashboard change.');
+      return;
+    } else {
+      psGlobals.dashboard.ping = stat;
+      if(stat && psGlobals.dashboard.sync){
+        $('.dashboard').hide();
+        $('#ping-status').html('');
+      } else if(stat){
+        $('#ping-status').html('');
+      } else {
+        $('#ping-status').html('Server offline');
+        $('.dashboard').show();
+      }
+    }
+  }
 }

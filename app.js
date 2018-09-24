@@ -118,9 +118,23 @@ function apiLogin(req, res){
 
 app.post('/apilogout', apiLogout);
 function apiLogout(req, res){
+  res.setHeader('Content-Type', 'application/json');
+  if(!req.session.user || !req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
   delete req.session.user;
   delete req.session.authenticated;
+  res.send(JSON.stringify({result: 'success'}));
+}
+
+app.post('/apiping', apiPing);
+function apiPing(req, res){
   res.setHeader('Content-Type', 'application/json');
+  if(!req.session.user || !req.session.user.authenticated){
+    res.send(JSON.stringify({result: 'noauth'}));
+    return;
+  }
   res.send(JSON.stringify({result: 'success'}));
 }
 
