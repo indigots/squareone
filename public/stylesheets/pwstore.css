@@ -40,8 +40,7 @@ body {
 .dashboard{
   position: fixed;
   bottom: 5px;
-  left:2%;
-  width: 96%;
+  right:2%;
   color: #a94442;
   background-color: #f2dede;
   border-color: #ebccd1;
