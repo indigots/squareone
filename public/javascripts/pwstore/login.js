@@ -19,7 +19,8 @@ psGlobals = {
   dashboard: {
     sync: true,
     ping: true 
-  }
+  },
+  loggingout: false
 };
 
 function doLogin(){
@@ -97,6 +98,7 @@ function logoutClicked(){
 }
 
 function logout(){
+  psGlobals.loggingout = true;
   psGlobals.socket.disconnect();
   $.ajax({
     type: "POST",
@@ -181,6 +183,7 @@ function pingStatus(){
 
 function dashboardUpdate(type, stat){
   //console.log(type + ' ' + stat);
+  if(psGlobals.loggingout){return;}
   if(type === 'sync'){
     if(psGlobals.dashboard.sync === stat){
       //console.log('No dashboard change.');
