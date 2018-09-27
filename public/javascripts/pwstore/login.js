@@ -71,7 +71,7 @@ function apiLogin(username, pass){
       renderPasswords();
       fetchAllPasswords();
       setupIO();
-      setInterval(pingStatus, 30000);
+      setInterval(pingStatus, 100000);
     } else {
       updateStatus('failed: ' + data.result + '<br />\n');
       $('#login-button').removeClass('pure-button-disabled').attr("disabled", false);
@@ -143,10 +143,12 @@ function setupIO(){
   psGlobals.socket.on('disconnect', function(){
     //console.log('Socket was disconnected!');
     dashboardUpdate('sync', false);
+    pingStatus();
   });
   psGlobals.socket.on('reconnect', function(){
     //console.log('Socket reconnected!');
     dashboardUpdate('sync', true)
+    pingStatus();
   });
 }
 
@@ -196,7 +198,11 @@ function dashboardUpdate(type, stat){
       } else if(stat){
         $('#sync-status').html('');
       } else {
-        $('#sync-status').html('Syncing offline');
+        if($('#ping-status').html() === ''){
+          $('#sync-status').html('Syncing offline');
+        } else {
+          $('#sync-status').html('Syncing offline,');
+        }
         $('.dashboard').show();
       }
     }
@@ -211,10 +217,18 @@ function dashboardUpdate(type, stat){
         $('#ping-status').html('');
       } else if(stat){
         $('#ping-status').html('');
+        if($('#sync-status').html().slice(-1) === ','){
+          $('#sync-status').html($('#sync-status').html().slice(0,-1));
+        }
       } else {
         $('#ping-status').html('Server offline');
         $('.dashboard').show();
       }
     }
+  }
+  if(!psGlobals.dashboard.sync && !psGlobals.dashboard.ping){
+    $('#status-comma').show();
+  } else {
+    $('#status-comma').hide();
   }
 }
