@@ -49,3 +49,12 @@ body {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
+.header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid;
+}

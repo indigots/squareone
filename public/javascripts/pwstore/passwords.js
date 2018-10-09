@@ -2,6 +2,7 @@ $(document).ready(function(){
   $('#add-pass-button').click(addPassword);
   $('#undo-button').click(undo);
   $('#redo-button').click(redo);
+  $('#clear-header-button').click(selectAndCopy);
 });
 
 function addPassword(){
@@ -240,7 +241,10 @@ function selectAndCopy(event){
   event.preventDefault();
   var toSelect = $(this).prev().get(0);
   var pass = getPasswordByUID($(this).parent().parent().attr('id'));
-  if(toSelect.getAttribute('field') === 'password'){
+  if($(this).attr('id') === 'clear-header-button') {
+    $('#temp-span').html('x');
+    selectText(document.getElementById('temp-span'));
+  } else if(toSelect.getAttribute('field') === 'password'){
     $('#temp-span').html(pass.password);
     selectText(document.getElementById('temp-span'));
   } else {

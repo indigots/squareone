@@ -10,6 +10,10 @@ $(document).ready(function(){
     event.preventDefault();
     logoutClicked();
   });
+  $('#logout-header-button').click(function(event){
+    event.preventDefault();
+    logoutClicked();
+  });
 });
 
 psGlobals = {
@@ -68,6 +72,7 @@ function apiLogin(username, pass){
       decryptSessionKeys(data.userdata);
       $('#login-div').hide();
       $('#password-div').show();
+      $('.header').show();
       renderPasswords();
       fetchAllPasswords();
       setupIO();
