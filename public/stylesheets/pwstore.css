@@ -1,25 +1,7 @@
-body {
-  color: #777;
-  font-size: 1.125em;
-}
-.field-title {
-  color: rgb(75, 75, 75);
-  font-weight: bold;
-}
-
-.password-label {
-  font-size: 1.25em;
-  color: rgb(75, 75, 75);
-}
-
-.field {
-  padding-right: 1em;
-}
-
 .modal-overlay {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 1001;
   left: 0;
   top: 0;
   width: 100%;
@@ -48,13 +30,4 @@ body {
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
-}
-
-.header {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  background: white;
-  border-bottom: 1px solid;
 }

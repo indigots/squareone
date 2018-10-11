@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  $('#change-master-button').click(function(event){
+  $('#change-master-link').click(function(event){
     event.preventDefault();
     $('#master-password-div').show();
   });

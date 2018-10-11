@@ -5,15 +5,7 @@ $(document).ready(function(){
     event.preventDefault();
   });
   kdfWorker = new Worker('/javascripts/pwstore/kdfworker.js');
-  $('#logout-button').click(logoutClicked);
-  $('#logout-menu-button').click(function(event){
-    event.preventDefault();
-    logoutClicked();
-  });
-  $('#logout-header-button').click(function(event){
-    event.preventDefault();
-    logoutClicked();
-  });
+  $('#logout-link').click(logoutClicked);
 });
 
 psGlobals = {
@@ -70,9 +62,8 @@ function apiLogin(username, pass){
     if(data.result == 'success'){
       updateStatus('done<br />\n');
       decryptSessionKeys(data.userdata);
-      $('#login-div').hide();
-      $('#password-div').show();
-      $('.header').show();
+      $('.pre-login').hide();
+      $('.post-login').show();
       renderPasswords();
       fetchAllPasswords();
       setupIO();
