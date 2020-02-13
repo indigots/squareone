@@ -7,6 +7,7 @@
   <title>Sq.uare.one &ndash; Password Manager</title>
   
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
     <!--[if lte IE 8]>
       <link rel="stylesheet" href="/combo/1.18.13?/css/layouts/side-menu-old-ie.css">
     <![endif]-->
@@ -16,6 +17,12 @@
   <!--[if lt IE 9]>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
   <![endif]-->
+  <!--[if lte IE 8]>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-old-ie-min.css">
+  <![endif]-->
+  <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+  <!--<![endif]-->
   <script type="text/javascript" src="/javascripts/jquery/jquery-3.0.0.min.js"></script>
   <script type="text/javascript" src="/javascripts/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="/javascripts/asmcrypto/asmcrypto.js"></script>
@@ -27,6 +34,7 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script src="/javascripts/pwstore/ui.js"></script>
   <link rel="stylesheet" href="/stylesheets/pwstore.css">
+  <link rel="stylesheet" href="/stylesheets/input-add-on.css">
 </head>
 <body>
 
@@ -80,11 +88,35 @@
         <a href="/register.html">Register</a>
         <p><span id="login-status"></span></p>
       </div>
-      <div id="password-div" style="display: none;" class="post-login"> 
+      <div id="password-div" style="display: none;" class="post-login pure-g"> 
         <button id="add-pass-button" class="pure-button secondary-button"><i class="fa fa-plus-circle" aria-hidden="true"></i> Add</button>
         <div id="password-list"></div>
         <button id="undo-button" class="pure-button secondary-button" style="display: none;">Undo</button>
         <button id="redo-button" class="pure-button secondary-button" style="display: none;">Redo</button><br>
+        <div class="InputAddOn pure-u-1">
+          <input class="InputAddOn-field" size="1">
+          <button class="InputAddOn-item"><i class="fas fa-lock"></i></button>
+          <button class="InputAddOn-item"><i class="fas fa-trash-alt"></i></button>
+        </div>
+        <div class="InputAddOn pure-u-1 pure-u-md-1-2">
+          <span class="InputAddOn-item">Username</span>
+          <input class="InputAddOn-field" size="1">
+          <button class="InputAddOn-item"><i class="far fa-copy"></i></button>
+        </div>
+        <div class="InputAddOn pure-u-1 pure-u-md-1-2">
+          <span class="InputAddOn-item">Password</span>
+          <input class="InputAddOn-field" size="1">
+          <button class="InputAddOn-item"><i class="far fa-copy"></i></button>
+        </div>
+        <div class="InputAddOn pure-u-1 pure-u-md-3-5">
+          <span class="InputAddOn-item">URL</span>
+          <input class="InputAddOn-field" size="1">
+          <button class="InputAddOn-item"><i class="fas fa-door-open"></i></button>
+        </div>
+        <div class="InputAddOn pure-u-1 pure-u-md-2-5">
+          <span class="InputAddOn-item">Notes</span>
+          <input class="InputAddOn-field" size="1">
+        </div>
       </div>
       <div id="hidden-div"><span id="temp-span" style="position: absolute; left: -1000px; top: -1000px;"></span></div>
       <div id="master-password-div" class="modal-overlay" style="display: none;"><div id="master-password-content" class="modal-content">
