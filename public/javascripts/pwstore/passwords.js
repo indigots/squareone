@@ -50,7 +50,7 @@ function renderPasswords(){
   var freshpasswords = _.filter(psGlobals.passwords, function(inpw){ return inpw.recentlynew; });
   freshpasswords = _.sortBy(freshpasswords, 'created').reverse();
   var oldpasswords = _.filter(psGlobals.passwords, function(inpw){ return !inpw.recentlynew; });
-  oldpasswords = _.sortBy(oldpasswords, 'label');
+  oldpasswords = _.sortBy(oldpasswords, function(inpw){ return inpw.label.toLowerCase(); });
   psGlobals.passwords = freshpasswords.concat(oldpasswords);
   for(var i=0; i<psGlobals.passwords.length; i++){
     newHtml += renderPassword(psGlobals.passwords[i], i);
